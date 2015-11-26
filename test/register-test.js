@@ -48,6 +48,26 @@ describe('Registration', () => {
 			done();
 		});
 	});
+
+	it('should return 400 status code if data was invalid', done => {
+		const data = { username: '', password: '' };
+		makePostRequest().send(data).end((err, res) => {
+			expect(res.statusCode).to.be(400);
+			done();
+		});
+	});
+
+	it('should return 200 status code if data was valid', done => {
+		const data = {
+			username: 'valid_username',
+			password: 'valid_password',
+		};
+
+		makePostRequest().send(data).end((err, res) => {
+			expect(res.statusCode).to.be(200);
+			done();
+		});
+	});
 });
 
 function makePostRequest() {
