@@ -13,7 +13,7 @@ module.exports = function(req, res, next) {
 			req.errors.push('username-too-long');
 		}
 
-		if (!(/[a-zA-Z0-9_]/).test(username)) {
+		if (!(/^[a-zA-Z0-9_]+$/g).test(username)) {
 			req.errors.push('username-has-invalid-symbols');
 		}
 	} else {

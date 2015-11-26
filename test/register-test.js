@@ -19,7 +19,8 @@ describe('Registration', () => {
 	});
 
 	it('should return error if given username contains invalid symbols', done => {
-		const username = '!@#$%^&*()-+';
+		// TODO: test more symbols
+		const username = 'usern@me';
 		makePostRequest().send({ username }).end((err, res) => {
 			expect(res.body.errors).to.contain('username-has-invalid-symbols');
 			done();
