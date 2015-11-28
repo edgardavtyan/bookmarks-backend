@@ -42,6 +42,14 @@ describe('Registration', () => {
 		});
 	});
 
+	it('should return error if given password is too long', done => {
+		const password = 'abcdefghigklmnopqrstuvwxyz0123456789';
+		makePostRequest().send({ password }).end((req, res) => {
+			expect(res.body.errors).to.contain('password-too-long');
+			done();
+		});
+	});
+
 	it('should return error if password was not given', done => {
 		makePostRequest().end((err, res) => {
 			expect(res.body.errors).to.contain('password-empty');

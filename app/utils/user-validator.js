@@ -25,6 +25,10 @@ module.exports = function(req, res, next) {
 		if (password.length < 3) {
 			req.errors.push('password-too-short');
 		}
+
+		if (password.length > 25) {
+			req.errors.push('password-too-long');
+		}
 	} else {
 		req.errors.push('password-empty');
 	}
