@@ -120,7 +120,7 @@
 		"jsx-quotes": 1,
 		"key-spacing": [1, { "beforeColon": false, "afterColon": true }],
 		"lines-around-comment": 0,
-		"linebreak-style": [2, "windows"],
+		"linebreak-style": [2, "unix"],
 		"max-nested-callbacks": [0, 3],
 		"new-cap": 1,
 		"new-parens": 1,
