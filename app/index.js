@@ -3,6 +3,7 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const config = require('./config');
 const app = module.exports = express();
 
 require('./db');
@@ -18,4 +19,4 @@ passport.use(require('./auth/local'));
 
 require('./routes')(app);
 
-app.listen(1377);
+app.listen(config.server.port);

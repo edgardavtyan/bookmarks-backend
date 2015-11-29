@@ -1,6 +1,7 @@
 require('../app');
 const expect = require('expect.js');
 const restler = require('restler');
+const config = require('../app/config');
 const User = require('../app/db').User;
 
 describe('Registration', () => {
@@ -114,5 +115,5 @@ describe('Registration', () => {
 
 
 function makePostRequest(data, callback) {
-	restler.post('http://localhost:1377/register', { data }).on('complete', callback);
+	restler.post(`${config.server.url}/register`, { data }).on('complete', callback);
 }
