@@ -1,7 +1,6 @@
 require('../app');
 const restler = require('restler');
 const expect = require('expect.js');
-const supertest = require('supertest');
 const User = require('../app/db').User;
 
 describe('Login', () => {

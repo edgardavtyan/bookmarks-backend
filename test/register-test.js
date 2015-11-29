@@ -9,7 +9,7 @@ describe('Registration', () => {
 	});
 
 	it('should return error if given username is too short', done => {
-		makePostRequest('post', '/register', { username: 'ab' }, body => {
+		makePostRequest({ username: 'ab' }, body => {
 			expect(body.errors).to.contain('username-too-short');
 			done();
 		});
@@ -17,7 +17,7 @@ describe('Registration', () => {
 
 	it('should return error if given username is too long', done => {
 		const username = 'abcdefghigklmnopqrstuvwxyz0123456789';
-		makePostRequest('post', '/register', { username }, body => {
+		makePostRequest({ username }, body => {
 			expect(body.errors).to.contain('username-too-long');
 			done();
 		});
@@ -26,14 +26,14 @@ describe('Registration', () => {
 	it('should return error if given username contains invalid symbols', done => {
 		// TODO: test more symbols
 		const username = 'usern@me';
-		makePostRequest('post', '/register', { username }, body => {
+		makePostRequest({ username }, body => {
 			expect(body.errors).to.contain('username-has-invalid-symbols');
 			done();
 		});
 	});
 
 	it('should return error if username was not given', done => {
-		makePostRequest('post', '/register', {}, body => {
+		makePostRequest({}, body => {
 			expect(body.errors).to.contain('username-empty');
 			done();
 		});
@@ -41,7 +41,7 @@ describe('Registration', () => {
 
 	it('should return error if given password is too short', done => {
 		const password = 'ab';
-		makePostRequest('post', '/register', { password }, body => {
+		makePostRequest({ password }, body => {
 			expect(body.errors).to.contain('password-too-short');
 			done();
 		});
@@ -49,14 +49,14 @@ describe('Registration', () => {
 
 	it('should return error if given password is too long', done => {
 		const password = 'abcdefghigklmnopqrstuvwxyz0123456789';
-		makePostRequest('post', '/register', { password }, body => {
+		makePostRequest({ password }, body => {
 			expect(body.errors).to.contain('password-too-long');
 			done();
 		});
 	});
 
 	it('should return error if password was not given', done => {
-		makePostRequest('post', '/register', {}, body => {
+		makePostRequest({}, body => {
 			expect(body.errors).to.contain('password-empty');
 			done();
 		});
@@ -64,7 +64,7 @@ describe('Registration', () => {
 
 	it('should return 400 status code if data was invalid', done => {
 		const data = { username: '', password: '' };
-		makePostRequest('post', '/register', data, (body, res) => {
+		makePostRequest(data, (body, res) => {
 			expect(res.statusCode).to.be(400);
 			done();
 		});
@@ -76,7 +76,7 @@ describe('Registration', () => {
 			password: 'valid_password',
 		};
 
-		makePostRequest('post', '/register', data, (body, res) => {
+		makePostRequest(data, (body, res) => {
 			expect(res.statusCode).to.be(200);
 			done();
 		});
@@ -88,7 +88,7 @@ describe('Registration', () => {
 			password: 'valid_password',
 		};
 
-		makePostRequest('post', '/register', data, () => {
+		makePostRequest(data, () => {
 			User.Model.findOne({ username: data.username }, (err, user) => {
 				expect(user.username).to.be(data.username);
 				expect(user.password).to.be(data.password);
@@ -103,8 +103,8 @@ describe('Registration', () => {
 			password: 'password',
 		};
 
-		makePostRequest('post', '/register', data, () => {
-			makePostRequest('post', '/register', data, body => {
+		makePostRequest(data, () => {
+			makePostRequest(data, body => {
 				expect(body.errors).to.contain('username-exists');
 				done();
 			});
@@ -113,6 +113,6 @@ describe('Registration', () => {
 });
 
 
-function makePostRequest(method, url, data, callback) {
-	restler[method](`http://localhost:1377${url}`, { data }).on('complete', callback);
+function makePostRequest(data, callback) {
+	restler.post('http://localhost:1377/register', { data }).on('complete', callback);
 }
