@@ -1,19 +1,25 @@
+require('../app');
+
 const expect = require('expect.js');
-const supertest = require('supertest');
-const app = require('../app');
+const restler = require('restler');
+const User = require('../app/db').User;
 
 describe('Registration', () => {
+	beforeEach(() => {
+		User.Model.remove({}).exec();
+	});
+
 	it('should return error if given username is too short', done => {
-		makePostRequest().send({ username: 'ab' }).end((err, res) => {
-			expect(res.body.errors).to.contain('username-too-short');
+		makePostRequest('post', '/register', { username: 'ab' }, body => {
+			expect(body.errors).to.contain('username-too-short');
 			done();
 		});
 	});
 
 	it('should return error if given username is too long', done => {
 		const username = 'abcdefghigklmnopqrstuvwxyz0123456789';
-		makePostRequest().send({ username }).end((err, res) => {
-			expect(res.body.errors).to.contain('username-too-long');
+		makePostRequest('post', '/register', { username }, body => {
+			expect(body.errors).to.contain('username-too-long');
 			done();
 		});
 	});
@@ -21,45 +27,45 @@ describe('Registration', () => {
 	it('should return error if given username contains invalid symbols', done => {
 		// TODO: test more symbols
 		const username = 'usern@me';
-		makePostRequest().send({ username }).end((err, res) => {
-			expect(res.body.errors).to.contain('username-has-invalid-symbols');
+		makePostRequest('post', '/register', { username }, body => {
+			expect(body.errors).to.contain('username-has-invalid-symbols');
 			done();
 		});
 	});
 
 	it('should return error if username was not given', done => {
-		makePostRequest().end((err, res) => {
-			expect(res.body.errors).to.contain('username-empty');
+		makePostRequest('post', '/register', {}, body => {
+			expect(body.errors).to.contain('username-empty');
 			done();
 		});
 	});
 
 	it('should return error if given password is too short', done => {
 		const password = 'ab';
-		makePostRequest().send({ password }).end((req, res) => {
-			expect(res.body.errors).to.contain('password-too-short');
+		makePostRequest('post', '/register', { password }, body => {
+			expect(body.errors).to.contain('password-too-short');
 			done();
 		});
 	});
 
 	it('should return error if given password is too long', done => {
 		const password = 'abcdefghigklmnopqrstuvwxyz0123456789';
-		makePostRequest().send({ password }).end((req, res) => {
-			expect(res.body.errors).to.contain('password-too-long');
+		makePostRequest('post', '/register', { password }, body => {
+			expect(body.errors).to.contain('password-too-long');
 			done();
 		});
 	});
 
 	it('should return error if password was not given', done => {
-		makePostRequest().end((err, res) => {
-			expect(res.body.errors).to.contain('password-empty');
+		makePostRequest('post', '/register', {}, body => {
+			expect(body.errors).to.contain('password-empty');
 			done();
 		});
 	});
 
 	it('should return 400 status code if data was invalid', done => {
 		const data = { username: '', password: '' };
-		makePostRequest().send(data).end((err, res) => {
+		makePostRequest('post', '/register', data, (body, res) => {
 			expect(res.statusCode).to.be(400);
 			done();
 		});
@@ -71,13 +77,43 @@ describe('Registration', () => {
 			password: 'valid_password',
 		};
 
-		makePostRequest().send(data).end((err, res) => {
+		makePostRequest('post', '/register', data, (body, res) => {
 			expect(res.statusCode).to.be(200);
 			done();
 		});
 	});
+
+	it('should save user to database', done => {
+		const data = {
+			username: 'valid_username',
+			password: 'valid_password',
+		};
+
+		makePostRequest('post', '/register', data, () => {
+			User.Model.findOne({ username: data.username }, (err, user) => {
+				expect(user.username).to.be(data.username);
+				expect(user.password).to.be(data.password);
+				done();
+			});
+		});
+	});
+
+	it('should not save user when username exists', done => {
+		const data = {
+			username: 'username',
+			password: 'password',
+		};
+
+		makePostRequest('post', '/register', data, () => {
+			makePostRequest('post', '/register', data, body => {
+				expect(body.errors).to.contain('username-exists');
+				done();
+			});
+		});
+	});
 });
 
-function makePostRequest() {
-	return supertest(app).post('/register').type('form');
+
+function makePostRequest(method, url, data, callback) {
+	restler[method](`http://localhost:1377${url}`, { data }).on('complete', callback);
 }

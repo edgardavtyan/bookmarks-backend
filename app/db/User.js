@@ -1,4 +1,18 @@
-module.exports = function(req, res, next) {
+const mongoose = require('mongoose');
+
+module.exports.Model = mongoose.model('User', new mongoose.Schema({
+	username: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	password: {
+		type: String,
+		required: true,
+	},
+}));
+
+module.exports.Validator = function(req, res, next) {
 	if (req.errors === undefined) {
 		req.errors = [];
 	}
@@ -32,7 +46,6 @@ module.exports = function(req, res, next) {
 	} else {
 		req.errors.push('password-empty');
 	}
-
 
 	next();
 };
