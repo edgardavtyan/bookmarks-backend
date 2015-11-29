@@ -1,5 +1,4 @@
 require('../app');
-
 const expect = require('expect.js');
 const restler = require('restler');
 const User = require('../app/db').User;

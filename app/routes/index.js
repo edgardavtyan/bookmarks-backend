@@ -1,7 +1,13 @@
 module.exports = function(app) {
-	require('./user/register')(app);
+	app.use((req, res, next) => {
+		req.errors = [];
+		next();
+	});
 
-	app.post('/register', (req, res) => {
+	require('./user/register')(app);
+	require('./user/login')(app);
+
+	app.use((req, res) => {
 		res.json({ errors: req.errors });
 	});
 };
