@@ -8,7 +8,7 @@ const config = rootRequire('config');
 const User = rootRequire('db').User;
 
 describe('Login', () => {
-	afterEach(done => {
+	beforeEach(done => {
 		User.Model.remove({}, () => done());
 	});
 
