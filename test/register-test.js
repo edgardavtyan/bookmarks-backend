@@ -1,8 +1,9 @@
 /* global rootRequire */
 require('../app');
-const expect = require('expect.js');
+const expect = require('./utils/chai').expect;
 const restler = require('restler');
 const config = rootRequire('config');
+const errors = rootRequire('utils/errors');
 const User = rootRequire('db').User;
 
 describe('Registration', () => {
@@ -12,7 +13,7 @@ describe('Registration', () => {
 
 	it('should return error if given username is too short', done => {
 		makePostRequest({ username: 'ab' }, body => {
-			expect(body.errors).to.contain('username-too-short');
+			expect(body.errors).to.contain(errors.username.tooShort);
 			done();
 		});
 	});
@@ -20,7 +21,7 @@ describe('Registration', () => {
 	it('should return error if given username is too long', done => {
 		const username = 'abcdefghigklmnopqrstuvwxyz0123456789';
 		makePostRequest({ username }, body => {
-			expect(body.errors).to.contain('username-too-long');
+			expect(body.errors).to.contain(errors.username.tooLong);
 			done();
 		});
 	});
@@ -29,14 +30,14 @@ describe('Registration', () => {
 		// TODO: test more symbols
 		const username = 'usern@me';
 		makePostRequest({ username }, body => {
-			expect(body.errors).to.contain('username-has-invalid-symbols');
+			expect(body.errors).to.contain(errors.username.invalidSymbols);
 			done();
 		});
 	});
 
 	it('should return error if username was not given', done => {
 		makePostRequest({}, body => {
-			expect(body.errors).to.contain('username-empty');
+			expect(body.errors).to.contain(errors.username.empty);
 			done();
 		});
 	});
@@ -44,7 +45,7 @@ describe('Registration', () => {
 	it('should return error if given password is too short', done => {
 		const password = 'ab';
 		makePostRequest({ password }, body => {
-			expect(body.errors).to.contain('password-too-short');
+			expect(body.errors).to.contain(errors.password.tooShort);
 			done();
 		});
 	});
@@ -52,14 +53,14 @@ describe('Registration', () => {
 	it('should return error if given password is too long', done => {
 		const password = 'abcdefghigklmnopqrstuvwxyz0123456789';
 		makePostRequest({ password }, body => {
-			expect(body.errors).to.contain('password-too-long');
+			expect(body.errors).to.contain(errors.password.tooLong);
 			done();
 		});
 	});
 
 	it('should return error if password was not given', done => {
 		makePostRequest({}, body => {
-			expect(body.errors).to.contain('password-empty');
+			expect(body.errors).to.contain(errors.password.empty);
 			done();
 		});
 	});
@@ -67,7 +68,7 @@ describe('Registration', () => {
 	it('should return 400 status code if data was invalid', done => {
 		const data = { username: '', password: '' };
 		makePostRequest(data, (body, res) => {
-			expect(res.statusCode).to.be(400);
+			expect(res.statusCode).to.equal(400);
 			done();
 		});
 	});
@@ -79,7 +80,7 @@ describe('Registration', () => {
 		};
 
 		makePostRequest(data, (body, res) => {
-			expect(res.statusCode).to.be(200);
+			expect(res.statusCode).to.equal(200);
 			done();
 		});
 	});
@@ -92,8 +93,8 @@ describe('Registration', () => {
 
 		makePostRequest(data, () => {
 			User.Model.findOne({ username: data.username }, (err, user) => {
-				expect(user.username).to.be(data.username);
-				expect(user.password).to.be(data.password);
+				expect(user.username).to.equal(data.username);
+				expect(user.password).to.equal(data.password);
 				done();
 			});
 		});
@@ -107,7 +108,7 @@ describe('Registration', () => {
 
 		makePostRequest(data, () => {
 			makePostRequest(data, body => {
-				expect(body.errors).to.contain('username-exists');
+				expect(body.errors).to.contain(errors.username.exists);
 				done();
 			});
 		});

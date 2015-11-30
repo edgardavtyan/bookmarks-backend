@@ -1,6 +1,7 @@
 /* global rootRequire */
 const User = rootRequire('db').User;
 const dbErrors = rootRequire('db/errors');
+const errors = rootRequire('utils/errors');
 
 module.exports = function(app) {
 	app.post('/register', User.Validator, (req, res, next) => {
@@ -14,7 +15,7 @@ module.exports = function(app) {
 			});
 			user.save(err => {
 				if (err && err.code === dbErrors['duplicate-key']) {
-					req.errors.push('username-exists');
+					req.errors.push(errors.username.exists);
 				}
 
 				next();

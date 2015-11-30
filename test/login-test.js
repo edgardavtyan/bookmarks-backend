@@ -1,8 +1,9 @@
 /* global rootRequire */
 require('../app');
 const restler = require('restler');
-const expect = require('expect.js');
+const expect = require('./utils/chai').expect;
 const messages = rootRequire('utils/messages');
+const errors = rootRequire('utils/errors');
 const config = rootRequire('config');
 const User = rootRequire('db').User;
 
@@ -14,7 +15,7 @@ describe('Login', () => {
 	it('should not login given not existing username', done => {
 		const data = { username: 'user', password: '123123' };
 		makeLoginRequest(data, body => {
-			expect(body.errors).to.contain('username-not-found');
+			expect(body.errors).to.contain(errors.username.notFound);
 			expect(body.message).to.contain(messages.login.failed);
 			done();
 		});

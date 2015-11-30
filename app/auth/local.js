@@ -1,6 +1,7 @@
 /* global rootRequire */
 const LocalStrategy = require('passport-local').Strategy;
 const User = rootRequire('db').User;
+const errors = rootRequire('utils/errors');
 
 module.exports = new LocalStrategy((username, password, done) => {
 	User.Model.findOne({ username }, (err, user) => {
@@ -9,11 +10,11 @@ module.exports = new LocalStrategy((username, password, done) => {
 		}
 
 		if (!user) {
-			return done(null, false, { error: 'username-not-found' });
+			return done(null, false, { error: errors.username.notFound });
 		}
 
 		if (user.password !== password) {
-			return done(null, false, { error: 'password-not-found' });
+			return done(null, false, { error: errors.password.notFound });
 		}
 
 		return done(null, user);
