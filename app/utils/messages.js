@@ -3,4 +3,8 @@ module.exports = {
 		successful: 'Login successful',
 		failed: 'Login failed',
 	},
+
+	auth: {
+		notAuthenticated: 'Not authenticated',
+	},
 };

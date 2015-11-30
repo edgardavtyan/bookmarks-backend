@@ -4,12 +4,9 @@ module.exports = function(app) {
 		next();
 	});
 
+	require('./root')(app);
 	require('./user/register')(app);
 	require('./user/login')(app);
-
-	app.get('/', (req, res) => {
-		res.send(req.isAuthenticated());
-	});
 
 	app.use((req, res) => {
 		res.json({

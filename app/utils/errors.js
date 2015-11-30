@@ -13,4 +13,8 @@ module.exports = {
 		tooShort: { key: 'password-too-short' },
 		tooLong: { key: 'password-too-long' },
 	},
+
+	auth: {
+		notAuthenticated: { key: 'not-authenticated' },
+	},
 };
