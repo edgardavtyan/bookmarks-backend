@@ -7,7 +7,14 @@ module.exports = function(app) {
 	require('./user/register')(app);
 	require('./user/login')(app);
 
+	app.get('/', (req, res) => {
+		res.send(req.isAuthenticated());
+	});
+
 	app.use((req, res) => {
-		res.json({ errors: req.errors });
+		res.json({
+			message: req.message,
+			errors: req.errors,
+		});
 	});
 };
