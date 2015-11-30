@@ -1,9 +1,10 @@
+/* global rootRequire */
 require('../app');
 const restler = require('restler');
 const expect = require('expect.js');
-const messages = require('../app/utils/messages');
-const config = require('../app/config');
-const User = require('../app/db').User;
+const messages = rootRequire('utils/messages');
+const config = rootRequire('config');
+const User = rootRequire('db').User;
 
 describe('Login', () => {
 	afterEach(done => {

@@ -1,8 +1,9 @@
+/* global rootRequire */
 require('../app');
 const expect = require('expect.js');
 const restler = require('restler');
-const config = require('../app/config');
-const User = require('../app/db').User;
+const config = rootRequire('config');
+const User = rootRequire('db').User;
 
 describe('Registration', () => {
 	beforeEach(() => {

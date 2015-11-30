@@ -6,6 +6,10 @@ const session = require('express-session');
 const config = require('./config');
 const app = module.exports = express();
 
+global.rootRequire = function(name) {
+	return require(`${__dirname}/${name}`);
+};
+
 require('./db');
 
 app.use(bodyParser.urlencoded({ extended: true }));

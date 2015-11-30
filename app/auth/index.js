@@ -1,4 +1,5 @@
-const User = require('../db').User;
+/* global rootRequire */
+const User = rootRequire('db').User;
 
 module.exports = function(passport) {
 	passport.serializeUser((user, done) => {

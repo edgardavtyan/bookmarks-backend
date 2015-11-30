@@ -1,5 +1,6 @@
+/* global rootRequire */
 const passport = require('passport');
-const messages = require('../../utils/messages');
+const messages = rootRequire('utils/messages');
 
 module.exports = function(app) {
 	app.post('/user/login', (req, res, next) => {

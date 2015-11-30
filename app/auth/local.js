@@ -1,5 +1,6 @@
+/* global rootRequire */
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('../db').User;
+const User = rootRequire('db').User;
 
 module.exports = new LocalStrategy((username, password, done) => {
 	User.Model.findOne({ username }, (err, user) => {

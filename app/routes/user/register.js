@@ -1,5 +1,6 @@
-const User = require('../../db').User;
-const dbErrors = require('../../db/errors');
+/* global rootRequire */
+const User = rootRequire('db').User;
+const dbErrors = rootRequire('db/errors');
 
 module.exports = function(app) {
 	app.post('/register', User.Validator, (req, res, next) => {

@@ -136,7 +136,7 @@
 		"no-spaced-func": 1,
 		"no-ternary": 0,
 		"no-trailing-spaces": 1,
-		"no-underscore-dangle": 1,
+		"no-underscore-dangle": [1, { "allow": ["__root"] }],
 		"no-unneeded-ternary": 1,
 		"object-curly-spacing": 0,
 		"one-var": 0,
