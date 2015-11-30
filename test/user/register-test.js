@@ -1,6 +1,6 @@
 /* global rootRequire */
-require('../app');
-const expect = require('./utils/chai').expect;
+require('../../app');
+const expect = require('../utils/chai').expect;
 const restler = require('restler');
 const config = rootRequire('config');
 const errors = rootRequire('utils/errors');
