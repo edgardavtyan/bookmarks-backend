@@ -23,7 +23,8 @@
     "watch": "^0.16.0"
   },
   "scripts": {
-    "test": "chokidar \"{app,test}/**/*.js\" -c \"mocha -c test/**/*-test.js\"  --silent"
+  	"test": "mocha -c test/**/*-test.js",
+    "test-w": "chokidar \"{app,test}/**/*.js\" -c \"mocha -c test/**/*-test.js\"  --silent"
   },
   "keywords": [
     "nodejs",
