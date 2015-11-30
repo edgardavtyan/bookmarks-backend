@@ -1,6 +1,7 @@
 require('../app');
 const restler = require('restler');
 const expect = require('expect.js');
+const messages = require('../app/utils/messages');
 const config = require('../app/config');
 const User = require('../app/db').User;
 
@@ -13,6 +14,7 @@ describe('Login', () => {
 		const data = { username: 'user', password: '123123' };
 		makeLoginRequest(data, body => {
 			expect(body.errors).to.contain('username-not-found');
+			expect(body.message).to.contain(messages.login.failed);
 			done();
 		});
 	});
@@ -22,6 +24,7 @@ describe('Login', () => {
 		new User.Model(data).save(() => {
 			makeLoginRequest(data, body => {
 				expect(body.errors).to.be.empty();
+				expect(body.message).to.contain(messages.login.successful);
 				done();
 			});
 		});

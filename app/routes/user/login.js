@@ -1,11 +1,12 @@
 const passport = require('passport');
+const messages = require('../../utils/messages');
 
 module.exports = function(app) {
 	app.post('/user/login', (req, res, next) => {
 		passport.authenticate('local', (err, user, info) => {
 			if (info && info.error) {
 				req.errors.push(info.error);
-				req.message = 'Login unsuccessful';
+				req.message = messages.login.failed;
 			} else {
 				req.logIn(user, loginErr => {
 					if (loginErr) {
@@ -13,7 +14,7 @@ module.exports = function(app) {
 						return;
 					}
 
-					req.message = 'Login successful';
+					req.message = messages.login.successful;
 				});
 			}
 			next();
