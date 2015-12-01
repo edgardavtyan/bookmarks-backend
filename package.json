@@ -19,13 +19,20 @@
     "chokidar": "^1.3.0",
     "chokidar-cli": "^1.2.0",
     "dirty-chai": "^1.2.2",
+    "ghooks": "^1.0.1",
     "mocha": "^2.3.4",
     "restler": "^3.4.0",
     "supertest": "^1.1.0"
   },
   "scripts": {
     "test": "mocha -c --recursive test",
-    "test-w": "chokidar \"{app,test}/**/*.js\" -c \"mocha -c --recursive test\"  --silent"
+    "test-w": "chokidar \"{app,test}/**/*.js\" -c \"mocha -c --recursive test\"  --silent",
+    "lint": "eslint ."
+  },
+  "config": {
+  	"ghooks": {
+  		"pre-commit": "sh hooks/lint.sh && npm run test"
+  	}
   },
   "keywords": [
     "nodejs",
