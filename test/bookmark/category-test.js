@@ -16,12 +16,14 @@ const credentials = {
 
 describe('/bookmark/category', () => {
 	let userId;
+	let categoryId;
 
 
 	beforeEach(done => {
 		async.series([
 			clearModel(Category),
 			clearModel(User),
+			addCategory({name: ''}, category => categoryId = category.id),
 			function() {
 				new User.Model(credentials).save((err, user) => {
 					userId = user.id;
@@ -109,6 +111,74 @@ describe('/bookmark/category', () => {
 			]);
 		});
 	});
+
+	describe('PUT', () => {
+		it('handle unauthorized requests', done => {
+			supertest(app).put('/bookmark/category').end(expectNotAuthenticated(done));
+		});
+
+		it('return error given no id', done => {
+			const agent = supertest.agent(app);
+			async.series([
+				login(agent),
+				makePutRequest(agent, {}, (err, res) => {
+					expect(res.statusCode).to.equal(400);
+					expect(res.body.errors).to.contain(errors.category.idEmpty);
+					done();
+				}),
+			]);
+		});
+
+		it('return error given empty category name', done => {
+			const agent = supertest.agent(app);
+			async.series([
+				login(agent),
+				makePutRequest(agent, {}, (err, res) => {
+					expect(res.statusCode).to.equal(400);
+					expect(res.body.errors).to.contain(errors.category.nameEmpty);
+					done();
+				}),
+			]);
+		});
+
+		it('return error given too long category name', done => {
+			const data = {
+				id: categoryId,
+				name: faker.string(600),
+			};
+			const agent = supertest.agent(app);
+
+			async.series([
+				login(agent),
+				makePutRequest(agent, data, (err, res) => {
+					expect(res.statusCode).to.equal(400);
+					expect(res.body.errors).to.contain(errors.category.nameTooLong);
+					done();
+				}),
+			]);
+		});
+
+		it('change category name', done => {
+			const agent = supertest.agent(app);
+			const data = {
+				id: categoryId,
+				name: faker.string(50),
+			};
+
+			async.series([
+				login(agent),
+				makePutRequest(agent, data, (err, res) => {
+					expect(res.statusCode).to.equal(200);
+
+					Category.Model.findById(categoryId, (dbErr, category) => {
+						console.log(category);
+						expect(category.name).to.equal(data.name);
+						done();
+					});
+				}),
+			]);
+		});
+	});
 });
 
 function expectNotAuthenticated(done) {
@@ -121,6 +191,15 @@ function expectNotAuthenticated(done) {
 function clearModel(model) {
 	return function(callback) {
 		model.Model.remove({}, callback);
+	};
+}
+
+function addCategory(data, callback) {
+	return function(innerCallback) {
+		new Category.Model(data).save((err, category) => {
+			if (callback) callback(category);
+			innerCallback();
+		});
 	};
 }
 
@@ -157,5 +236,15 @@ function postRequestAndQueryDb(agent, data, callback) {
 		.end((err, res) => {
 			Category.Model.findById(res.body.category._id, callback);
 		});
+	};
+}
+
+function makePutRequest(agent, data, callback) {
+	return function() {
+		agent
+		.put('/bookmark/category')
+		.type('form')
+		.send(data)
+		.end(callback);
 	};
 }

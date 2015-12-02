@@ -38,4 +38,11 @@ module.exports = function(app) {
 			res.json({ category });
 		});
 	});
+
+	app.put('/bookmark/category', checkAuth, Category.putValidator, (req, res) => {
+		Category.Model.findOneAndUpdate(
+			{ _id: req.body.id },
+			{ name: req.body.name },
+			() => res.send());
+	});
 };

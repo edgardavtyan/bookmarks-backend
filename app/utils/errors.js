@@ -19,6 +19,9 @@ module.exports = {
 	},
 
 	category: {
+		idEmpty: { key: 'category-id-empty' },
 		nameTooLong: { key: 'category-name-too-long' },
+		nameEmpty: { key: 'category-name-empty' },
+		notFound: { key: 'category-not-found' },
 	},
 };
