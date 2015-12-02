@@ -27,7 +27,8 @@
   "scripts": {
     "test": "mocha -c --recursive test",
     "test-w": "chokidar \"{app,test}/**/*.js\" -c \"mocha -c --recursive test\"  --silent",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "start-db": "mongod --dbpath \"./.dbdata\""
   },
   "config": {
   	"ghooks": {
