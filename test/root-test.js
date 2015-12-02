@@ -3,7 +3,6 @@ const supertest = require('supertest');
 const async = require('async');
 const app = rootRequire('app');
 const errors = rootRequire('app/utils/errors');
-const messages = rootRequire('app/utils/messages');
 const User = rootRequire('app/db/User');
 const expect = rootRequire('test/utils/chai').expect;
 
@@ -18,7 +17,6 @@ describe('/', () => {
 				.get('/')
 				.end((err, res) => {
 					expect(res.body.errors).to.contain(errors.auth.notAuthenticated);
-					expect(res.body.message).to.equal(messages.auth.notAuthenticated);
 					done();
 				});
 		});
@@ -37,7 +35,6 @@ describe('/', () => {
 				function() {
 					agent.get('/').end((err, res) => {
 						expect(res.body.errors).to.be.empty();
-						expect(res.body.message).to.equal(messages.auth.authenticated);
 						done();
 					});
 				},

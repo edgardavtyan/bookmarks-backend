@@ -1,5 +1,4 @@
 /* global rootRequire */
-const messages = rootRequire('app/utils/messages');
 const errors = rootRequire('app/utils/errors');
 const Category = rootRequire('app/db/Category');
 
@@ -7,7 +6,6 @@ module.exports = function(app) {
 	app.get('/bookmark/category', (req, res, next) => {
 		if (!req.isAuthenticated()) {
 			req.errors.push(errors.auth.notAuthenticated);
-			req.message = messages.auth.notAuthenticated;
 			return next();
 		}
 
@@ -21,7 +19,6 @@ module.exports = function(app) {
 	app.post('/bookmark/category', (req, res, next) => {
 		if (!req.isAuthenticated()) {
 			req.errors.push(errors.auth.notAuthenticated);
-			req.message = messages.auth.notAuthenticated;
 			return next();
 		}
 

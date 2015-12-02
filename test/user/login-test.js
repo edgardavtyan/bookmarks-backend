@@ -1,7 +1,6 @@
 /* global rootRequire */
 rootRequire('app');
 const restler = require('restler');
-const messages = rootRequire('app/utils/messages');
 const errors = rootRequire('app/utils/errors');
 const config = rootRequire('app/config');
 const User = rootRequire('app/db').User;
@@ -16,7 +15,6 @@ describe('Login', () => {
 		const data = { username: 'user', password: '123123' };
 		makeLoginRequest(data, body => {
 			expect(body.errors).to.contain(errors.username.notFound);
-			expect(body.message).to.contain(messages.login.failed);
 			done();
 		});
 	});
@@ -26,7 +24,6 @@ describe('Login', () => {
 		new User.Model(data).save(() => {
 			makeLoginRequest(data, body => {
 				expect(body.errors).to.be.empty();
-				expect(body.message).to.contain(messages.login.successful);
 				done();
 			});
 		});

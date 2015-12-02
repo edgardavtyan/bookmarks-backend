@@ -3,7 +3,6 @@
 const app = require('../../app');
 const async = require('async');
 const supertest = require('supertest');
-const messages = rootRequire('app/utils/messages');
 const errors = rootRequire('app/utils/errors');
 const Category = rootRequire('app/db/Category');
 const User = rootRequire('app/db/User');
@@ -38,7 +37,6 @@ describe('/bookmark/category', () => {
 				.get('/bookmark/category')
 				.end((err, res) => {
 					expect(res.body.errors).to.contain(errors.auth.notAuthenticated);
-					expect(res.body.message).to.equal(messages.auth.notAuthenticated);
 					done();
 				});
 		});
@@ -116,7 +114,6 @@ describe('/bookmark/category', () => {
 function expectNotAuthenticated(done) {
 	return function(err, res) {
 		expect(res.body.errors).to.contain(errors.auth.notAuthenticated);
-		expect(res.body.message).to.equal(messages.auth.notAuthenticated);
 		done();
 	};
 }
