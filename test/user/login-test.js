@@ -1,11 +1,11 @@
 /* global rootRequire */
-require('../../app');
+rootRequire('app');
 const restler = require('restler');
-const expect = require('../utils/chai').expect;
-const messages = rootRequire('utils/messages');
-const errors = rootRequire('utils/errors');
-const config = rootRequire('config');
-const User = rootRequire('db').User;
+const messages = rootRequire('app/utils/messages');
+const errors = rootRequire('app/utils/errors');
+const config = rootRequire('app/config');
+const User = rootRequire('app/db').User;
+const expect = rootRequire('test/utils/chai').expect;
 
 describe('Login', () => {
 	beforeEach(done => {

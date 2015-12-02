@@ -1,7 +1,7 @@
 /* global rootRequire */
-const messages = rootRequire('utils/messages');
-const errors = rootRequire('utils/errors');
-const Category = rootRequire('db/Category');
+const messages = rootRequire('app/utils/messages');
+const errors = rootRequire('app/utils/errors');
+const Category = rootRequire('app/db/Category');
 
 module.exports = function(app) {
 	app.get('/bookmark/category', (req, res, next) => {

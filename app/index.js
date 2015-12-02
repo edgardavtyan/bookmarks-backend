@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
@@ -7,7 +8,7 @@ const config = require('./config');
 const app = module.exports = express();
 
 global.rootRequire = function(name) {
-	return require(`${__dirname}/${name}`);
+	return require(path.join(__dirname, '../', name));
 };
 
 require('./db');

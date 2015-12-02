@@ -1,11 +1,11 @@
 /* global rootRequire */
-const app = require('../app');
 const supertest = require('supertest');
-const expect = require('./utils/chai').expect;
 const async = require('async');
-const errors = rootRequire('utils/errors');
-const messages = rootRequire('utils/messages');
-const User = rootRequire('db/User');
+const app = rootRequire('app');
+const errors = rootRequire('app/utils/errors');
+const messages = rootRequire('app/utils/messages');
+const User = rootRequire('app/db/User');
+const expect = rootRequire('test/utils/chai').expect;
 
 describe('/', () => {
 	beforeEach(done => {

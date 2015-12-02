@@ -1,14 +1,14 @@
 'use strict';
 /* global rootRequire */
+const app = require('../../app');
 const async = require('async');
 const supertest = require('supertest');
-const expect = require('../utils/chai').expect;
-const app = require('../../app');
-const faker = require('../utils/faker-custom');
-const messages = rootRequire('utils/messages');
-const errors = rootRequire('utils/errors');
-const Category = rootRequire('db/Category');
-const User = rootRequire('db/User');
+const messages = rootRequire('app/utils/messages');
+const errors = rootRequire('app/utils/errors');
+const Category = rootRequire('app/db/Category');
+const User = rootRequire('app/db/User');
+const faker = rootRequire('test/utils/faker-custom');
+const expect = rootRequire('test/utils/chai').expect;
 
 const credentials = {
 	username: 'username',

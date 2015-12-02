@@ -1,6 +1,6 @@
 /* global rootRequire */
 const mongoose = require('mongoose');
-const errors = rootRequire('utils/errors');
+const errors = rootRequire('app/utils/errors');
 
 module.exports.Model = mongoose.model('User', new mongoose.Schema({
 	username: {

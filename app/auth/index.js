@@ -1,5 +1,5 @@
 /* global rootRequire */
-const User = rootRequire('db').User;
+const User = rootRequire('app/db').User;
 
 module.exports = function(passport) {
 	passport.serializeUser((user, done) => {

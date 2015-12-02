@@ -1,6 +1,6 @@
 /* global rootRequire */
-const errors = rootRequire('utils/errors');
-const messages = rootRequire('utils/messages');
+const errors = rootRequire('app/utils/errors');
+const messages = rootRequire('app/utils/messages');
 
 module.exports = function(app) {
 	app.get('/', (req, res, next) => {
