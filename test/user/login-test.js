@@ -12,7 +12,7 @@ describe('Login', () => {
 		User.Model.remove({}, () => done());
 	});
 
-	it('should not login given not existing username', done => {
+	it('return error given not existing username', done => {
 		const data = { username: 'user', password: '123123' };
 		makeLoginRequest(data, body => {
 			expect(body.errors).to.contain(errors.username.notFound);
@@ -21,7 +21,7 @@ describe('Login', () => {
 		});
 	});
 
-	it('should login given correct data', done => {
+	it('login given correct data', done => {
 		const data = { username: 'user', password: '123123' };
 		new User.Model(data).save(() => {
 			makeLoginRequest(data, body => {

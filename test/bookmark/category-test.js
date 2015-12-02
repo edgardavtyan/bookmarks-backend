@@ -33,7 +33,7 @@ describe('/bookmark/category', () => {
 	});
 
 	describe('GET', () => {
-		it('should handle not authenticated requests', done => {
+		it('handle not authenticated requests', done => {
 			supertest(app)
 				.get('/bookmark/category')
 				.end((err, res) => {
@@ -43,7 +43,7 @@ describe('/bookmark/category', () => {
 				});
 		});
 
-		it('should return all bookmark categories', done => {
+		it('return all bookmark categories', done => {
 			const agent = supertest.agent(app);
 			async.series([
 				addCategories(3, userId),
@@ -60,14 +60,14 @@ describe('/bookmark/category', () => {
 	});
 
 	describe('POST', () => {
-		it('should handle not authenticated users', done => {
+		it('handle not authenticated users', done => {
 			supertest(app)
 				.post('/bookmark/category')
 				.type('form')
 				.end(expectNotAuthenticated(done));
 		});
 
-		it('should fill empty category fields', done => {
+		it('fill empty category fields', done => {
 			const agent = supertest.agent(app);
 			async.series([
 				login(agent),
@@ -80,20 +80,7 @@ describe('/bookmark/category', () => {
 			]);
 		});
 
-		it('should return error if category name is too long', done => {
-			const agent = supertest.agent(app);
-			const name = faker.string(1000);
-			async.series([
-				login(agent),
-				postRequest(agent, { name }, (err, res) => {
-					expect(res.statusCode).to.equal(400);
-					expect(res.body.errors).to.contain(errors.category.nameTooLong);
-					done();
-				}),
-			]);
-		});
-
-		it('should fill given category fields', done => {
+		it('fill given category fields', done => {
 			const agent = supertest.agent(app);
 			const categoryData = {
 				name: 'Category',
@@ -106,6 +93,19 @@ describe('/bookmark/category', () => {
 					expect(category).to.not.be.null();
 					expect(category.name).to.equal(categoryData.name);
 					expect(category.icon).to.equal(categoryData.icon);
+					done();
+				}),
+			]);
+		});
+
+		it('return error if category name is too long', done => {
+			const agent = supertest.agent(app);
+			const name = faker.string(1000);
+			async.series([
+				login(agent),
+				postRequest(agent, { name }, (err, res) => {
+					expect(res.statusCode).to.equal(400);
+					expect(res.body.errors).to.contain(errors.category.nameTooLong);
 					done();
 				}),
 			]);
