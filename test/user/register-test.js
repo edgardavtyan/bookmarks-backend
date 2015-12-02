@@ -2,6 +2,7 @@
 require('../../app');
 const expect = require('../utils/chai').expect;
 const restler = require('restler');
+const faker = require('../utils/faker-custom');
 const config = rootRequire('config');
 const errors = rootRequire('utils/errors');
 const User = rootRequire('db').User;
@@ -12,14 +13,14 @@ describe('Registration', () => {
 	});
 
 	it('return error given too short username', done => {
-		makePostRequest({ username: 'ab' }, body => {
+		makePostRequest({ username: faker.string(2) }, body => {
 			expect(body.errors).to.contain(errors.username.tooShort);
 			done();
 		});
 	});
 
 	it('return error given too long username', done => {
-		const username = 'abcdefghigklmnopqrstuvwxyz0123456789';
+		const username = faker.string(200);
 		makePostRequest({ username }, body => {
 			expect(body.errors).to.contain(errors.username.tooLong);
 			done();
@@ -57,7 +58,7 @@ describe('Registration', () => {
 	});
 
 	it('return error given too short password', done => {
-		const password = 'ab';
+		const password = faker.string(2);
 		makePostRequest({ password }, body => {
 			expect(body.errors).to.contain(errors.password.tooShort);
 			done();
@@ -65,7 +66,7 @@ describe('Registration', () => {
 	});
 
 	it('return error given too long password', done => {
-		const password = 'abcdefghigklmnopqrstuvwxyz0123456789';
+		const password = faker.string(200);
 		makePostRequest({ password }, body => {
 			expect(body.errors).to.contain(errors.password.tooLong);
 			done();
