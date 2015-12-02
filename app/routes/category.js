@@ -1,14 +1,10 @@
 /* global rootRequire */
 const errors = rootRequire('app/utils/errors');
+const checkAuth = rootRequire('app/utils/middleware').checkAuth;
 const Category = rootRequire('app/db/Category');
 
 module.exports = function(app) {
-	app.get('/bookmark/category', (req, res, next) => {
-		if (!req.isAuthenticated()) {
-			req.errors.push(errors.auth.notAuthenticated);
-			return next();
-		}
-
+	app.get('/bookmark/category', checkAuth, (req, res, next) => {
 		Category.Model.find({ userId: req.user.id }, (err, categories) => {
 			if (err) return next();
 
@@ -16,12 +12,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post('/bookmark/category', (req, res, next) => {
-		if (!req.isAuthenticated()) {
-			req.errors.push(errors.auth.notAuthenticated);
-			return next();
-		}
-
+	app.post('/bookmark/category', checkAuth, (req, res) => {
 		if (req.body.name && req.body.name.length > 100) {
 			req.errors.push(errors.category.nameTooLong);
 		}
