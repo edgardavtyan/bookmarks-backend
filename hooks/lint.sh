@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 lintOutput=$(eslint --color .)
 
 if [ "$lintOutput" != "" ]; then
