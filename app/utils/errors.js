@@ -17,4 +17,8 @@ module.exports = {
 	auth: {
 		notAuthenticated: { key: 'not-authenticated' },
 	},
+
+	category: {
+		nameTooLong: { key: 'category-name-too-long' },
+	},
 };
