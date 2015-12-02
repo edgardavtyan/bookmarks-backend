@@ -10,18 +10,18 @@ module.exports.Model = mongoose.model('Category', new mongoose.Schema({
 
 module.exports.putValidator = function(req, res, next) {
 	if (!req.body.id) {
-		req.errors.push(errors.category.idEmpty);
+		res.errors.push(errors.category.idEmpty);
 	}
 
 	if (!req.body.name) {
-		req.errors.push(errors.category.nameEmpty);
+		res.errors.push(errors.category.nameEmpty);
 	} else if (req.body.name.length > 100) {
-		req.errors.push(errors.category.nameTooLong);
+		res.errors.push(errors.category.nameTooLong);
 	}
 
-	if (req.errors.length > 0) {
+	if (res.errors.length > 0) {
 		res.statusCode = 400;
-		res.json({ errors: req.errors });
+		res.json({ errors: res.errors });
 	} else {
 		next();
 	}

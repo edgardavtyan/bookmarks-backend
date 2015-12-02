@@ -15,38 +15,38 @@ module.exports.Model = mongoose.model('User', new mongoose.Schema({
 }));
 
 module.exports.Validator = function(req, res, next) {
-	if (req.errors === undefined) {
-		req.errors = [];
+	if (res.errors === undefined) {
+		res.errors = [];
 	}
 
 	const username = req.body.username;
 	if (username !== undefined) {
 		if (username.length < 3) {
-			req.errors.push(errors.username.tooShort);
+			res.errors.push(errors.username.tooShort);
 		}
 
 		if (username.length > 25) {
-			req.errors.push(errors.username.tooLong);
+			res.errors.push(errors.username.tooLong);
 		}
 
 		if (!(/^[a-zA-Z0-9_]+$/g).test(username)) {
-			req.errors.push(errors.username.invalidSymbols);
+			res.errors.push(errors.username.invalidSymbols);
 		}
 	} else {
-		req.errors.push(errors.username.empty);
+		res.errors.push(errors.username.empty);
 	}
 
 	const password = req.body.password;
 	if (password !== undefined) {
 		if (password.length < 3) {
-			req.errors.push(errors.password.tooShort);
+			res.errors.push(errors.password.tooShort);
 		}
 
 		if (password.length > 25) {
-			req.errors.push(errors.password.tooLong);
+			res.errors.push(errors.password.tooLong);
 		}
 	} else {
-		req.errors.push(errors.password.empty);
+		res.errors.push(errors.password.empty);
 	}
 
 	next();

@@ -14,12 +14,12 @@ module.exports = function(app) {
 
 	app.post('/bookmark/category', checkAuth, (req, res) => {
 		if (req.body.name && req.body.name.length > 100) {
-			req.errors.push(errors.category.nameTooLong);
+			res.errors.push(errors.category.nameTooLong);
 		}
 
-		if (req.errors.length > 0) {
+		if (res.errors.length > 0) {
 			res.statusCode = 400;
-			return res.json({ errors: req.errors });
+			return res.json({ errors: res.errors });
 		}
 
 		if (req.body.name === undefined || req.body.name === '') {
