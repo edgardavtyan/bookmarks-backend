@@ -32,8 +32,7 @@
   },
   "config": {
   	"ghooks": {
-  		"pre-commit": "npm run test",
-  		"pre-push": "sh hooks/lint.sh"
+  		"pre-commit": "sh hooks/lint.sh && npm run test"
   	}
   },
   "keywords": [
