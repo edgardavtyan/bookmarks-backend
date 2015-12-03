@@ -1,10 +1,11 @@
 /* global rootRequire */
-const errors = rootRequire('app/utils/errors');
 const checkAuth = rootRequire('app/utils/middleware').checkAuth;
 const Category = rootRequire('app/db/Category');
 
 module.exports = function(app) {
 	app.get('/bookmark/category', checkAuth, (req, res, next) => {
+		if (res.errors.length > 0) return next();
+
 		Category.Model.find({ userId: req.user.id }, (err, categories) => {
 			if (err) return next();
 
@@ -12,15 +13,8 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post('/bookmark/category', checkAuth, (req, res) => {
-		if (req.body.name && req.body.name.length > 100) {
-			res.errors.push(errors.category.nameTooLong);
-		}
-
-		if (res.errors.length > 0) {
-			res.statusCode = 400;
-			return res.json({ errors: res.errors });
-		}
+	app.post('/bookmark/category', checkAuth, Category.checkPostData, (req, res, next) => {
+		if (res.errors.length > 0) return next();
 
 		if (req.body.name === undefined || req.body.name === '') {
 			req.body.name = 'New Category';
@@ -39,7 +33,9 @@ module.exports = function(app) {
 		});
 	});
 
-	app.put('/bookmark/category', checkAuth, Category.putValidator, (req, res) => {
+	app.put('/bookmark/category', checkAuth, Category.putValidator, (req, res, next) => {
+		if (res.errors.length > 0) return next();
+
 		Category.Model.findOneAndUpdate(
 			{ _id: req.body.id },
 			{ name: req.body.name },

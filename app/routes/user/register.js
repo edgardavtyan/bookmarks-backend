@@ -5,10 +5,7 @@ const errors = rootRequire('app/utils/errors');
 
 module.exports = function(app) {
 	app.post('/register', User.Validator, (req, res, next) => {
-		if (res.errors.length > 0) {
-			res.statusCode = 400;
-			return next();
-		}
+		if (res.errors.length > 0) return next();
 
 		const user = new User.Model({
 			username: req.body.username,

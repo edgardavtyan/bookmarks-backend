@@ -49,5 +49,7 @@ module.exports.Validator = function(req, res, next) {
 		res.errors.push(errors.password.empty);
 	}
 
+	if (res.errors.length > 0) res.statusCode = 400;
+
 	next();
 };

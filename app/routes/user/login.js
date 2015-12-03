@@ -5,14 +5,15 @@ module.exports = function(app) {
 		passport.authenticate('local', (err, user, info) => {
 			if (info && info.error) {
 				res.errors.push(info.error);
-			} else {
-				req.logIn(user, loginErr => {
-					if (loginErr) {
-						console.log(loginErr);
-						return;
-					}
-				});
+				return next();
 			}
+
+			req.logIn(user, loginErr => {
+				if (loginErr) {
+					console.log(loginErr);
+					return next();
+				}
+			});
 			next();
 		})(req, res);
 	});

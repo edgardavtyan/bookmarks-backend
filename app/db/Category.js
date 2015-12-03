@@ -21,8 +21,19 @@ module.exports.putValidator = function(req, res, next) {
 
 	if (res.errors.length > 0) {
 		res.statusCode = 400;
-		res.json({ errors: res.errors });
-	} else {
-		next();
 	}
+
+	next();
+};
+
+module.exports.checkPostData = function(req, res, next) {
+	if (req.body.name && req.body.name.length > 100) {
+		res.errors.push(errors.category.nameTooLong);
+	}
+
+	if (res.errors.length > 0) {
+		res.statusCode = 400;
+	}
+
+	next();
 };
