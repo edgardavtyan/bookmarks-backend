@@ -37,10 +37,7 @@ describe('/bookmark/category', () => {
 		it('handle not authenticated requests', done => {
 			supertest(app)
 				.get('/bookmark/category')
-				.end((err, res) => {
-					expect(res.body.errors).to.contain(errors.auth.notAuthenticated);
-					done();
-				});
+				.end(expectNotAuthenticated(done));
 		});
 
 		it('return all bookmark categories', done => {
@@ -183,6 +180,7 @@ describe('/bookmark/category', () => {
 
 function expectNotAuthenticated(done) {
 	return function(err, res) {
+		expect(res.statusCode).to.equal(401);
 		expect(res.body.errors).to.contain(errors.auth.notAuthenticated);
 		done();
 	};

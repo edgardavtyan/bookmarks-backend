@@ -9,6 +9,8 @@ module.exports.Model = mongoose.model('Category', new mongoose.Schema({
 }));
 
 module.exports.putValidator = function(req, res, next) {
+	if (res.errors.length > 0) return next();
+
 	if (!req.body.id) {
 		res.errors.push(errors.category.idEmpty);
 	}
@@ -27,6 +29,8 @@ module.exports.putValidator = function(req, res, next) {
 };
 
 module.exports.checkPostData = function(req, res, next) {
+	if (res.errors.length > 0) return next();
+
 	if (req.body.name && req.body.name.length > 100) {
 		res.errors.push(errors.category.nameTooLong);
 	}

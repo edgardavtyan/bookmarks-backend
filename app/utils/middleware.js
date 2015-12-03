@@ -5,7 +5,7 @@ const utils = module.exports = {};
 
 utils.checkAuth = function(req, res, next) {
 	if (!req.isAuthenticated()) {
-		res.statusCode = 400;
+		res.statusCode = 401;
 		res.errors.push(errors.auth.notAuthenticated);
 	}
 
