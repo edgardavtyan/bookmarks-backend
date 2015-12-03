@@ -41,4 +41,15 @@ module.exports = function(app) {
 			{ name: req.body.name },
 			() => res.send());
 	});
+
+	app.delete('/bookmark/category', checkAuth, (req, res, next) => {
+		if (res.errors.length > 0) return next();
+
+		Category.Model.findOneAndRemove({ id: req.query.id }, (err, category) => {
+			res.json({
+				id: category._id,
+				name: category.name,
+			});
+		});
+	});
 };

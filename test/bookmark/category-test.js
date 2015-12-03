@@ -23,7 +23,7 @@ describe('/bookmark/category', () => {
 		async.series([
 			clearModel(Category),
 			clearModel(User),
-			addCategory({name: ''}, category => categoryId = category.id),
+			addCategory({name: 'Test Name'}, category => categoryId = category.id),
 			function() {
 				new User.Model(credentials).save((err, user) => {
 					userId = user.id;
@@ -66,6 +66,7 @@ describe('/bookmark/category', () => {
 
 		it('fill empty category fields', done => {
 			const agent = supertest.agent(app);
+			supertest.agent(app);
 			async.series([
 				login(agent),
 				postRequestAndQueryDb(agent, {}, (err, category) => {
@@ -176,6 +177,27 @@ describe('/bookmark/category', () => {
 			]);
 		});
 	});
+
+	describe('DELETE', () => {
+		it('handle unauthorized requests', done => {
+			supertest(app)
+				.delete('/bookmark/category')
+				.end(expectNotAuthenticated(done));
+		});
+
+		it('remove category by id', done => {
+			const agent = supertest.agent(app);
+			async.series([
+				login(agent),
+				makeDeleteRequest(agent, { id: categoryId }, (err, res) => {
+					expect(res.statusCode).to.equal(200);
+					expect(res.body.id).to.equal(categoryId);
+					expect(res.body.name).to.equal('Test Name');
+					done();
+				}),
+			]);
+		});
+	});
 });
 
 function expectNotAuthenticated(done) {
@@ -242,6 +264,15 @@ function makePutRequest(agent, data, callback) {
 		agent
 		.put('/bookmark/category')
 		.type('form')
+		.send(data)
+		.end(callback);
+	};
+}
+
+function makeDeleteRequest(agent, data, callback) {
+	return function() {
+		agent
+		.delete('/bookmark/category')
 		.send(data)
 		.end(callback);
 	};
