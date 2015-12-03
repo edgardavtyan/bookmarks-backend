@@ -7,8 +7,8 @@ const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
 
 describe('Registration', () => {
-	beforeEach(() => {
-		User.Model.remove({}).exec();
+	beforeEach(done => {
+		User.Model.remove({}, done);
 	});
 
 	it('return error given too short username', done => {
