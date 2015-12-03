@@ -1,7 +1,6 @@
 /* global rootRequire */
-rootRequire('app');
-const restler = require('restler');
-const config = rootRequire('app/config');
+const app = require('../../app');
+const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
 const User = rootRequire('app/db').User;
 const faker = rootRequire('test/utils/faker-custom');
@@ -13,16 +12,16 @@ describe('Registration', () => {
 	});
 
 	it('return error given too short username', done => {
-		makePostRequest({ username: faker.string(2) }, body => {
-			expect(body.errors).to.contain(errors.username.tooShort);
+		makePostRequest({ username: faker.string(2) }, (err, res) => {
+			expect(res.body.errors).to.contain(errors.username.tooShort);
 			done();
 		});
 	});
 
 	it('return error given too long username', done => {
 		const username = faker.string(200);
-		makePostRequest({ username }, body => {
-			expect(body.errors).to.contain(errors.username.tooLong);
+		makePostRequest({ username }, (err, res) => {
+			expect(res.body.errors).to.contain(errors.username.tooLong);
 			done();
 		});
 	});
@@ -30,15 +29,15 @@ describe('Registration', () => {
 	it('return error given username with invalid symbols', done => {
 		// TODO: test more symbols
 		const username = 'usern@me';
-		makePostRequest({ username }, body => {
-			expect(body.errors).to.contain(errors.username.invalidSymbols);
+		makePostRequest({ username }, (err, res) => {
+			expect(res.body.errors).to.contain(errors.username.invalidSymbols);
 			done();
 		});
 	});
 
 	it('return error given no username', done => {
-		makePostRequest({}, body => {
-			expect(body.errors).to.contain(errors.username.empty);
+		makePostRequest({}, (err, res) => {
+			expect(res.body.errors).to.contain(errors.username.empty);
 			done();
 		});
 	});
@@ -50,8 +49,8 @@ describe('Registration', () => {
 		};
 
 		makePostRequest(data, () => {
-			makePostRequest(data, body => {
-				expect(body.errors).to.contain(errors.username.exists);
+			makePostRequest(data, (err, res) => {
+				expect(res.body.errors).to.contain(errors.username.exists);
 				done();
 			});
 		});
@@ -59,23 +58,23 @@ describe('Registration', () => {
 
 	it('return error given too short password', done => {
 		const password = faker.string(2);
-		makePostRequest({ password }, body => {
-			expect(body.errors).to.contain(errors.password.tooShort);
+		makePostRequest({ password }, (err, res) => {
+			expect(res.body.errors).to.contain(errors.password.tooShort);
 			done();
 		});
 	});
 
 	it('return error given too long password', done => {
 		const password = faker.string(200);
-		makePostRequest({ password }, body => {
-			expect(body.errors).to.contain(errors.password.tooLong);
+		makePostRequest({ password }, (err, res) => {
+			expect(res.body.errors).to.contain(errors.password.tooLong);
 			done();
 		});
 	});
 
 	it('return error given no password', done => {
-		makePostRequest({}, body => {
-			expect(body.errors).to.contain(errors.password.empty);
+		makePostRequest({}, (err, res) => {
+			expect(res.body.errors).to.contain(errors.password.empty);
 			done();
 		});
 	});
@@ -118,5 +117,9 @@ describe('Registration', () => {
 
 
 function makePostRequest(data, callback) {
-	restler.post(`${config.server.url}/register`, { data }).on('complete', callback);
+	supertest(app)
+		.post('/register')
+		.type('form')
+		.send(data)
+		.end(callback);
 }

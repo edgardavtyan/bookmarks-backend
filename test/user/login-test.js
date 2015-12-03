@@ -1,8 +1,7 @@
 /* global rootRequire */
-rootRequire('app');
-const restler = require('restler');
+const app = require('../../app');
+const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
-const config = rootRequire('app/config');
 const User = rootRequire('app/db').User;
 const expect = rootRequire('test/utils/chai').expect;
 
@@ -13,8 +12,8 @@ describe('Login', () => {
 
 	it('return error given not existing username', done => {
 		const data = { username: 'user', password: '123123' };
-		makeLoginRequest(data, body => {
-			expect(body.errors).to.contain(errors.username.notFound);
+		makeLoginRequest(data, (err, res) => {
+			expect(res.body.errors).to.contain(errors.username.notFound);
 			done();
 		});
 	});
@@ -22,8 +21,8 @@ describe('Login', () => {
 	it('login given correct data', done => {
 		const data = { username: 'user', password: '123123' };
 		new User.Model(data).save(() => {
-			makeLoginRequest(data, body => {
-				expect(body.errors).to.be.empty();
+			makeLoginRequest(data, (err, res) => {
+				expect(res.body.errors).to.be.empty();
 				done();
 			});
 		});
@@ -31,5 +30,9 @@ describe('Login', () => {
 });
 
 function makeLoginRequest(data, callback) {
-	restler.post(`${config.server.url}/user/login`, { data }).on('complete', callback);
+	supertest(app)
+		.post('/user/login')
+		.type('form')
+		.send(data)
+		.end(callback);
 }

@@ -21,7 +21,6 @@
     "dirty-chai": "^1.2.2",
     "ghooks": "^1.0.1",
     "mocha": "^2.3.4",
-    "restler": "^3.4.0",
     "supertest": "^1.1.0"
   },
   "scripts": {
