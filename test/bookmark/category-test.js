@@ -8,7 +8,9 @@ const Category = rootRequire('app/db/Category');
 const User = rootRequire('app/db/User');
 const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
+const utils = rootRequire('test/utils/utils');
 
+const url = '/bookmark/category';
 const credentials = {
 	username: 'username',
 	password: 'password',
@@ -21,9 +23,9 @@ describe('/bookmark/category', () => {
 
 	beforeEach(done => {
 		async.series([
-			clearModel(Category),
-			clearModel(User),
-			addCategory({name: 'Test Name'}, category => categoryId = category.id),
+			utils.clearModel(Category),
+			utils.clearModel(User),
+			utils.saveModel(Category, {name: 'Test Name'}, category => categoryId = category.id),
 			function() {
 				new User.Model(credentials).save((err, user) => {
 					userId = user.id;
@@ -37,7 +39,7 @@ describe('/bookmark/category', () => {
 		it('handle not authenticated requests', done => {
 			supertest(app)
 				.get('/bookmark/category')
-				.end(expectNotAuthenticated(done));
+				.end(utils.expectNotAuthenticated(done));
 		});
 
 		it('return all bookmark categories', done => {
@@ -45,7 +47,7 @@ describe('/bookmark/category', () => {
 			async.series([
 				addCategories(3, userId),
 				addCategories(5, 'other_id'),
-				login(agent, credentials),
+				utils.login(agent, credentials),
 				function() {
 					agent.get('/bookmark/category').end((err, res) => {
 						expect(res.body.length).to.equal(3);
@@ -61,14 +63,14 @@ describe('/bookmark/category', () => {
 			supertest(app)
 				.post('/bookmark/category')
 				.type('form')
-				.end(expectNotAuthenticated(done));
+				.end(utils.expectNotAuthenticated(done));
 		});
 
 		it('fill empty category fields', done => {
 			const agent = supertest.agent(app);
 			supertest.agent(app);
 			async.series([
-				login(agent),
+				utils.login(agent, credentials),
 				postRequestAndQueryDb(agent, {}, (err, category) => {
 					expect(category).to.not.be.null();
 					expect(category.name).to.equal('New Category');
@@ -86,7 +88,7 @@ describe('/bookmark/category', () => {
 			};
 
 			async.series([
-				login(agent),
+				utils.login(agent, credentials),
 				postRequestAndQueryDb(agent, categoryData, (err, category) => {
 					expect(category).to.not.be.null();
 					expect(category.name).to.equal(categoryData.name);
@@ -100,8 +102,8 @@ describe('/bookmark/category', () => {
 			const agent = supertest.agent(app);
 			const name = faker.string(1000);
 			async.series([
-				login(agent),
-				postRequest(agent, { name }, (err, res) => {
+				utils.login(agent, credentials),
+				utils.makePostRequest(agent, url, { name }, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.nameTooLong);
 					done();
@@ -112,14 +114,14 @@ describe('/bookmark/category', () => {
 
 	describe('PUT', () => {
 		it('handle unauthorized requests', done => {
-			supertest(app).put('/bookmark/category').end(expectNotAuthenticated(done));
+			supertest(app).put('/bookmark/category').end(utils.expectNotAuthenticated(done));
 		});
 
 		it('return error given no id', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				login(agent),
-				makePutRequest(agent, {}, (err, res) => {
+				utils.login(agent, credentials),
+				utils.makePutRequest(agent, url, {}, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.idEmpty);
 					done();
@@ -130,8 +132,8 @@ describe('/bookmark/category', () => {
 		it('return error given empty category name', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				login(agent),
-				makePutRequest(agent, {}, (err, res) => {
+				utils.login(agent, credentials),
+				utils.makePutRequest(agent, url, {}, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.nameEmpty);
 					done();
@@ -147,8 +149,8 @@ describe('/bookmark/category', () => {
 			const agent = supertest.agent(app);
 
 			async.series([
-				login(agent),
-				makePutRequest(agent, data, (err, res) => {
+				utils.login(agent, credentials),
+				utils.makePutRequest(agent, url, data, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.nameTooLong);
 					done();
@@ -164,8 +166,8 @@ describe('/bookmark/category', () => {
 			};
 
 			async.series([
-				login(agent),
-				makePutRequest(agent, data, (err, res) => {
+				utils.login(agent, credentials),
+				utils.makePutRequest(agent, url, data, (err, res) => {
 					expect(res.statusCode).to.equal(200);
 
 					Category.Model.findById(categoryId, (dbErr, category) => {
@@ -182,14 +184,14 @@ describe('/bookmark/category', () => {
 		it('handle unauthorized requests', done => {
 			supertest(app)
 				.delete('/bookmark/category')
-				.end(expectNotAuthenticated(done));
+				.end(utils.expectNotAuthenticated(done));
 		});
 
 		it('remove category by id', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				login(agent),
-				makeDeleteRequest(agent, { id: categoryId }, (err, res) => {
+				utils.login(agent, credentials),
+				utils.makeDeleteRequest(agent, url, { id: categoryId }, (err, res) => {
 					expect(res.statusCode).to.equal(200);
 					expect(res.body.id).to.equal(categoryId);
 					expect(res.body.name).to.equal('Test Name');
@@ -200,50 +202,11 @@ describe('/bookmark/category', () => {
 	});
 });
 
-function expectNotAuthenticated(done) {
-	return function(err, res) {
-		expect(res.statusCode).to.equal(401);
-		expect(res.body.errors).to.contain(errors.auth.notAuthenticated);
-		done();
-	};
-}
-
-function clearModel(model) {
-	return function(callback) {
-		model.Model.remove({}, callback);
-	};
-}
-
-function addCategory(data, callback) {
-	return function(innerCallback) {
-		new Category.Model(data).save((err, category) => {
-			if (callback) callback(category);
-			innerCallback();
-		});
-	};
-}
-
 function addCategories(count, id) {
 	return function(callback) {
 		async.each(new Array(count), (i, eachCallback) => {
 			new Category.Model({ userId: id }).save(eachCallback);
 		}, callback);
-	};
-}
-
-function login(agent) {
-	return function(callback) {
-		agent.post('/user/login').type('form').send(credentials).end(callback);
-	};
-}
-
-function postRequest(agent, data, callback) {
-	return function() {
-		agent
-		.post('/bookmark/category')
-		.type('form')
-		.send(data)
-		.end(callback);
 	};
 }
 
@@ -256,24 +219,5 @@ function postRequestAndQueryDb(agent, data, callback) {
 		.end((err, res) => {
 			Category.Model.findById(res.body.category._id, callback);
 		});
-	};
-}
-
-function makePutRequest(agent, data, callback) {
-	return function() {
-		agent
-		.put('/bookmark/category')
-		.type('form')
-		.send(data)
-		.end(callback);
-	};
-}
-
-function makeDeleteRequest(agent, data, callback) {
-	return function() {
-		agent
-		.delete('/bookmark/category')
-		.send(data)
-		.end(callback);
 	};
 }

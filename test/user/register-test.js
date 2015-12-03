@@ -5,10 +5,11 @@ const errors = rootRequire('app/utils/errors');
 const User = rootRequire('app/db').User;
 const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
+const utils = rootRequire('test/utils/utils');
 
 describe('Registration', () => {
 	beforeEach(done => {
-		User.Model.remove({}, done);
+		utils.clearModel(User)(done);
 	});
 
 	it('return error given too short username', done => {

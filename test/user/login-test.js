@@ -4,10 +4,11 @@ const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
 const User = rootRequire('app/db').User;
 const expect = rootRequire('test/utils/chai').expect;
+const utils = rootRequire('test/utils/utils');
 
 describe('Login', () => {
 	beforeEach(done => {
-		User.Model.remove({}, () => done());
+		utils.clearModel(User)(done);
 	});
 
 	it('return error given not existing username', done => {
