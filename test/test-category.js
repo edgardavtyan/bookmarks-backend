@@ -26,12 +26,10 @@ describe(url, () => {
 			utils.clearModel(Category),
 			utils.clearModel(User),
 			utils.saveModel(Category, {name: 'Test Name'}, category => categoryId = category.id),
-			function() {
-				new User.Model(credentials).save((err, user) => {
-					userId = user.id;
-					done();
-				});
-			},
+			() => User.Model.create(credentials, (err, user) => {
+				userId = user.id;
+				done();
+			}),
 		]);
 	});
 
@@ -48,12 +46,10 @@ describe(url, () => {
 				addCategories(3, userId),
 				addCategories(5, 'other_id'),
 				utils.login(agent, credentials),
-				function() {
-					agent.get(url).end((err, res) => {
-						expect(res.body.length).to.equal(3);
-						done();
-					});
-				},
+				() => agent.get(url).end((err, res) => {
+					expect(res.body.length).to.equal(3);
+					done();
+				}),
 			]);
 		});
 	});
@@ -171,7 +167,6 @@ describe(url, () => {
 					expect(res.statusCode).to.equal(200);
 
 					Category.Model.findById(categoryId, (dbErr, category) => {
-						console.log(category);
 						expect(category.name).to.equal(data.name);
 						done();
 					});
@@ -190,36 +185,28 @@ describe(url, () => {
 		it('remove all categories', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				saveCategories([
-					{ name: 'test_name', userId: 'test_id' },
-					{ name: 'test_name', userId: 'test_id' },
-					{ name: 'test_name', userId: 'test_id' },
-					{ name: 'test_name', userId: 'test_id' },
-					{ name: 'test_name', userId: 'test_id' },
-				]),
+				addCategories(5),
 				utils.login(agent, credentials),
-				utils.makeDeleteRequest(agent, url, {}, () => {
-					Category.Model.find({}, (err, categories) => {
-						expect(categories).to.be.empty();
-						done();
-					});
+				utils.makeDeleteRequest(agent, url, {}),
+				() => Category.Model.find({}, (err, categories) => {
+					expect(categories).to.be.empty();
+					done();
 				}),
 			]);
 		});
 	});
 });
 
-function saveCategories(data) {
-	return function(innerCallback) {
-		Category.Model.create(data, () => innerCallback());
-	};
-}
+function addCategories(count, userId) {
+	if (!userId) userId = 0;
 
-function addCategories(count, id) {
+	const categories = [];
+	for (let i = 0; i < count; i++) {
+		categories.push({ userId });
+	}
+
 	return function(callback) {
-		async.each(new Array(count), (i, eachCallback) => {
-			new Category.Model({ userId: id }).save(eachCallback);
-		}, callback);
+		Category.Model.create(categories, callback);
 	};
 }
 

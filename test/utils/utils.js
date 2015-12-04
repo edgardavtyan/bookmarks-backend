@@ -33,11 +33,14 @@ utils.makePutRequest = function(agent, url, data, callback) {
 };
 
 utils.makeDeleteRequest = function(agent, url, data, callback) {
-	return function() {
+	return function(innerCallback) {
 		agent
 		.delete(url)
 		.send(data)
-		.end(callback);
+		.end((err, res) => {
+			if (callback) callback(err, res);
+			innerCallback();
+		});
 	};
 };
 

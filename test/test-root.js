@@ -28,18 +28,12 @@ describe(url, () => {
 			const agent = supertest.agent(app);
 
 			async.series([
-				function(callback) {
-					agent.post('/register').type('form').send(data).end(callback);
-				},
-				function(callback) {
-					agent.post('/login').type('form').send(data).end(callback);
-				},
-				function() {
-					agent.get(url).end((err, res) => {
-						expect(res.body.errors).to.be.empty();
-						done();
-					});
-				},
+				callback => agent.post('/register').type('form').send(data).end(callback),
+				callback => agent.post('/login').type('form').send(data).end(callback),
+				() => agent.get(url).end((err, res) => {
+					expect(res.body.errors).to.be.empty();
+					done();
+				}),
 			]);
 		});
 	});
