@@ -10,7 +10,7 @@ const url = '/login';
 
 describe(url, () => {
 	beforeEach(done => {
-		utils.clearModel(User)(done);
+		utils.clearModel(User, done);
 	});
 
 	it('return error given not existing username', done => {

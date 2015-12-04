@@ -23,9 +23,12 @@ describe(url, () => {
 
 	beforeEach(done => {
 		async.series([
-			utils.clearModel(Category),
-			utils.clearModel(User),
-			utils.saveModel(Category, {name: 'Test Name'}, category => categoryId = category.id),
+			cb => utils.clearModel(Category, cb),
+			cb => utils.clearModel(User, cb),
+			cb => utils.saveModel(Category, {name: 'Test Name'}, (err, category) => {
+				categoryId = category.id;
+				cb();
+			}),
 			() => User.Model.create(credentials, (err, user) => {
 				userId = user.id;
 				done();
@@ -43,9 +46,9 @@ describe(url, () => {
 		it('return all bookmark categories', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				addCategories(3, userId),
-				addCategories(5, 'other_id'),
-				utils.login(agent, credentials),
+				cb => addCategories(3, userId, cb),
+				cb => addCategories(5, 'other_id', cb),
+				cb => utils.login(agent, credentials, cb),
 				() => agent.get(url).end((err, res) => {
 					expect(res.body.length).to.equal(3);
 					done();
@@ -66,8 +69,8 @@ describe(url, () => {
 			const agent = supertest.agent(app);
 			supertest.agent(app);
 			async.series([
-				utils.login(agent, credentials),
-				postRequestAndQueryDb(agent, {}, (err, category) => {
+				cb => utils.login(agent, credentials, cb),
+				() => postRequestAndQueryDb(agent, {}, (err, category) => {
 					expect(category).to.not.be.null();
 					expect(category.name).to.equal('New Category');
 					expect(category.icon).to.equal('default');
@@ -84,8 +87,8 @@ describe(url, () => {
 			};
 
 			async.series([
-				utils.login(agent, credentials),
-				postRequestAndQueryDb(agent, categoryData, (err, category) => {
+				cb => utils.login(agent, credentials, cb),
+				() => postRequestAndQueryDb(agent, categoryData, (err, category) => {
 					expect(category).to.not.be.null();
 					expect(category.name).to.equal(categoryData.name);
 					expect(category.icon).to.equal(categoryData.icon);
@@ -98,8 +101,8 @@ describe(url, () => {
 			const agent = supertest.agent(app);
 			const name = faker.string(1000);
 			async.series([
-				utils.login(agent, credentials),
-				utils.makePostRequest(agent, url, { name }, (err, res) => {
+				cb => utils.login(agent, credentials, cb),
+				() => utils.makePostRequest(agent, url, { name }, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.nameTooLong);
 					done();
@@ -116,8 +119,8 @@ describe(url, () => {
 		it('return error given no id', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				utils.login(agent, credentials),
-				utils.makePutRequest(agent, url, {}, (err, res) => {
+				cb => utils.login(agent, credentials, cb),
+				() => utils.makePutRequest(agent, url, {}, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.idEmpty);
 					done();
@@ -128,8 +131,8 @@ describe(url, () => {
 		it('return error given empty category name', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				utils.login(agent, credentials),
-				utils.makePutRequest(agent, url, {}, (err, res) => {
+				cb => utils.login(agent, credentials, cb),
+				() => utils.makePutRequest(agent, url, {}, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.nameEmpty);
 					done();
@@ -145,8 +148,8 @@ describe(url, () => {
 			const agent = supertest.agent(app);
 
 			async.series([
-				utils.login(agent, credentials),
-				utils.makePutRequest(agent, url, data, (err, res) => {
+				cb => utils.login(agent, credentials, cb),
+				() => utils.makePutRequest(agent, url, data, (err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.nameTooLong);
 					done();
@@ -162,14 +165,14 @@ describe(url, () => {
 			};
 
 			async.series([
-				utils.login(agent, credentials),
-				utils.makePutRequest(agent, url, data, (err, res) => {
+				cb => utils.login(agent, credentials, cb),
+				cb => utils.makePutRequest(agent, url, data, (err, res) => {
 					expect(res.statusCode).to.equal(200);
-
-					Category.Model.findById(categoryId, (dbErr, category) => {
-						expect(category.name).to.equal(data.name);
-						done();
-					});
+					cb();
+				}),
+				() => Category.Model.findById(categoryId, (dbErr, category) => {
+					expect(category.name).to.equal(data.name);
+					done();
 				}),
 			]);
 		});
@@ -185,9 +188,9 @@ describe(url, () => {
 		it('remove all categories', done => {
 			const agent = supertest.agent(app);
 			async.series([
-				addCategories(5),
-				utils.login(agent, credentials),
-				utils.makeDeleteRequest(agent, url, {}),
+				cb => addCategories(5, null, cb),
+				cb => utils.login(agent, credentials, cb),
+				cb => utils.makeDeleteRequest(agent, url, {}, cb),
 				() => Category.Model.find({}, (err, categories) => {
 					expect(categories).to.be.empty();
 					done();
@@ -197,7 +200,7 @@ describe(url, () => {
 	});
 });
 
-function addCategories(count, userId) {
+function addCategories(count, userId, callback) {
 	if (!userId) userId = 0;
 
 	const categories = [];
@@ -205,19 +208,15 @@ function addCategories(count, userId) {
 		categories.push({ userId });
 	}
 
-	return function(callback) {
-		Category.Model.create(categories, callback);
-	};
+	Category.Model.create(categories, callback);
 }
 
 function postRequestAndQueryDb(agent, data, callback) {
-	return function() {
-		agent
-		.post(url)
-		.type('form')
-		.send(data)
-		.end((err, res) => {
-			Category.Model.findById(res.body.category._id, callback);
-		});
-	};
+	agent
+	.post(url)
+	.type('form')
+	.send(data)
+	.end((err, res) => {
+		Category.Model.findById(res.body.category._id, callback);
+	});
 }

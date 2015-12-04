@@ -13,58 +13,40 @@ utils.expectNotAuthenticated = function(done) {
 };
 
 utils.makePostRequest = function(agent, url, data, callback) {
-	return function() {
-		agent
-		.post(url)
-		.type('form')
-		.send(data)
-		.end(callback);
-	};
+	agent
+	.post(url)
+	.type('form')
+	.send(data)
+	.end(callback);
 };
 
 utils.makePutRequest = function(agent, url, data, callback) {
-	return function() {
-		agent
-		.put(url)
-		.type('form')
-		.send(data)
-		.end(callback);
-	};
+	agent
+	.put(url)
+	.type('form')
+	.send(data)
+	.end(callback);
 };
 
 utils.makeDeleteRequest = function(agent, url, data, callback) {
-	return function(innerCallback) {
-		agent
-		.delete(url)
-		.send(data)
-		.end((err, res) => {
-			if (callback) callback(err, res);
-			innerCallback();
-		});
-	};
+	agent
+	.delete(url)
+	.send(data)
+	.end(callback);
 };
 
-utils.login = function(agent, credentials) {
-	return function(callback) {
-		agent
-		.post('/login')
-		.type('form')
-		.send(credentials)
-		.end(callback);
-	};
+utils.login = function(agent, credentials, callback) {
+	agent
+	.post('/login')
+	.type('form')
+	.send(credentials)
+	.end(callback);
 };
 
-utils.clearModel = function(model) {
-	return function(callback) {
-		model.Model.remove({}, callback);
-	};
+utils.clearModel = function(model, callback) {
+	model.Model.remove({}, callback);
 };
 
 utils.saveModel = function(model, data, callback) {
-	return function(innerCallback) {
-		new model.Model(data).save((err, category) => {
-			if (callback) callback(category);
-			innerCallback();
-		});
-	};
+	new model.Model(data).save(callback);
 };

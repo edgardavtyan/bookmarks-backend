@@ -5,6 +5,7 @@ const app = rootRequire('app');
 const errors = rootRequire('app/utils/errors');
 const User = rootRequire('app/db/User');
 const expect = rootRequire('test/utils/chai').expect;
+const utils = rootRequire('test/utils/utils');
 
 const url = '/';
 
@@ -28,8 +29,8 @@ describe(url, () => {
 			const agent = supertest.agent(app);
 
 			async.series([
-				callback => agent.post('/register').type('form').send(data).end(callback),
-				callback => agent.post('/login').type('form').send(data).end(callback),
+				cb => utils.makePostRequest(agent, '/register', data, cb),
+				cb => utils.makePostRequest(agent, '/login', data, cb),
 				() => agent.get(url).end((err, res) => {
 					expect(res.body.errors).to.be.empty();
 					done();

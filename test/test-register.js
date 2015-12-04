@@ -11,7 +11,7 @@ const url = '/register';
 
 describe(url, () => {
 	beforeEach(done => {
-		utils.clearModel(User)(done);
+		utils.clearModel(User, done);
 	});
 
 	it('return error given too short username', done => {
