@@ -6,7 +6,9 @@ const errors = rootRequire('app/utils/errors');
 const User = rootRequire('app/db/User');
 const expect = rootRequire('test/utils/chai').expect;
 
-describe('/', () => {
+const url = '/';
+
+describe(url, () => {
 	beforeEach(done => {
 		User.Model.remove({}, done);
 	});
@@ -14,7 +16,7 @@ describe('/', () => {
 	describe('GET', () => {
 		it('handle non authenticated requests', done => {
 			supertest(app)
-				.get('/')
+				.get(url)
 				.end((err, res) => {
 					expect(res.body.errors).to.contain(errors.auth.notAuthenticated);
 					done();
@@ -30,10 +32,10 @@ describe('/', () => {
 					agent.post('/register').type('form').send(data).end(callback);
 				},
 				function(callback) {
-					agent.post('/user/login').type('form').send(data).end(callback);
+					agent.post('/login').type('form').send(data).end(callback);
 				},
 				function() {
-					agent.get('/').end((err, res) => {
+					agent.get(url).end((err, res) => {
 						expect(res.body.errors).to.be.empty();
 						done();
 					});

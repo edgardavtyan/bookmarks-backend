@@ -1,5 +1,5 @@
 /* global rootRequire */
-const app = require('../../app');
+const app = require('../app');
 const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
 const User = rootRequire('app/db').User;
@@ -7,7 +7,9 @@ const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
 const utils = rootRequire('test/utils/utils');
 
-describe('Registration', () => {
+const url = '/register';;
+
+describe(url, () => {
 	beforeEach(done => {
 		utils.clearModel(User)(done);
 	});
@@ -119,7 +121,7 @@ describe('Registration', () => {
 
 function makePostRequest(data, callback) {
 	supertest(app)
-		.post('/register')
+		.post(url)
 		.type('form')
 		.send(data)
 		.end(callback);

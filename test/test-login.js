@@ -1,12 +1,14 @@
 /* global rootRequire */
-const app = require('../../app');
+const app = require('../app');
 const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
 const User = rootRequire('app/db').User;
 const expect = rootRequire('test/utils/chai').expect;
 const utils = rootRequire('test/utils/utils');
 
-describe('Login', () => {
+const url = '/login';
+
+describe(url, () => {
 	beforeEach(done => {
 		utils.clearModel(User)(done);
 	});
@@ -32,7 +34,7 @@ describe('Login', () => {
 
 function makeLoginRequest(data, callback) {
 	supertest(app)
-		.post('/user/login')
+		.post(url)
 		.type('form')
 		.send(data)
 		.end(callback);

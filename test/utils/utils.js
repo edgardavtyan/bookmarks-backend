@@ -44,7 +44,7 @@ utils.makeDeleteRequest = function(agent, url, data, callback) {
 utils.login = function(agent, credentials) {
 	return function(callback) {
 		agent
-		.post('/user/login')
+		.post('/login')
 		.type('form')
 		.send(credentials)
 		.end(callback);

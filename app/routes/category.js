@@ -3,7 +3,7 @@ const checkAuth = rootRequire('app/utils/middleware').checkAuth;
 const Category = rootRequire('app/db/Category');
 
 module.exports = function(app) {
-	app.get('/bookmark/category', checkAuth, (req, res, next) => {
+	app.get('/category', checkAuth, (req, res, next) => {
 		if (res.errors.length > 0) return next();
 
 		Category.Model.find({ userId: req.user.id }, (err, categories) => {
@@ -13,7 +13,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post('/bookmark/category', checkAuth, Category.checkPostData, (req, res, next) => {
+	app.post('/category', checkAuth, Category.checkPostData, (req, res, next) => {
 		if (res.errors.length > 0) return next();
 
 		if (req.body.name === undefined || req.body.name === '') {
@@ -33,7 +33,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.put('/bookmark/category', checkAuth, Category.putValidator, (req, res, next) => {
+	app.put('/category', checkAuth, Category.putValidator, (req, res, next) => {
 		if (res.errors.length > 0) return next();
 
 		Category.Model.findOneAndUpdate(
@@ -42,7 +42,7 @@ module.exports = function(app) {
 			() => res.send());
 	});
 
-	app.delete('/bookmark/category', checkAuth, (req, res, next) => {
+	app.delete('/category', checkAuth, (req, res, next) => {
 		if (res.errors.length > 0) return next();
 
 		Category.Model.findOneAndRemove({ id: req.query.id }, (err, category) => {

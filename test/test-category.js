@@ -1,6 +1,6 @@
 'use strict';
 /* global rootRequire */
-const app = require('../../app');
+const app = require('../app');
 const async = require('async');
 const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
@@ -10,13 +10,13 @@ const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
 const utils = rootRequire('test/utils/utils');
 
-const url = '/bookmark/category';
+const url = '/category';
 const credentials = {
 	username: 'username',
 	password: 'password',
 };
 
-describe('/bookmark/category', () => {
+describe(url, () => {
 	let userId;
 	let categoryId;
 
@@ -38,7 +38,7 @@ describe('/bookmark/category', () => {
 	describe('GET', () => {
 		it('handle not authenticated requests', done => {
 			supertest(app)
-				.get('/bookmark/category')
+				.get(url)
 				.end(utils.expectNotAuthenticated(done));
 		});
 
@@ -49,7 +49,7 @@ describe('/bookmark/category', () => {
 				addCategories(5, 'other_id'),
 				utils.login(agent, credentials),
 				function() {
-					agent.get('/bookmark/category').end((err, res) => {
+					agent.get(url).end((err, res) => {
 						expect(res.body.length).to.equal(3);
 						done();
 					});
@@ -61,7 +61,7 @@ describe('/bookmark/category', () => {
 	describe('POST', () => {
 		it('handle not authenticated users', done => {
 			supertest(app)
-				.post('/bookmark/category')
+				.post(url)
 				.type('form')
 				.end(utils.expectNotAuthenticated(done));
 		});
@@ -114,7 +114,7 @@ describe('/bookmark/category', () => {
 
 	describe('PUT', () => {
 		it('handle unauthorized requests', done => {
-			supertest(app).put('/bookmark/category').end(utils.expectNotAuthenticated(done));
+			supertest(app).put(url).end(utils.expectNotAuthenticated(done));
 		});
 
 		it('return error given no id', done => {
@@ -183,7 +183,7 @@ describe('/bookmark/category', () => {
 	describe('DELETE', () => {
 		it('handle unauthorized requests', done => {
 			supertest(app)
-				.delete('/bookmark/category')
+				.delete(url)
 				.end(utils.expectNotAuthenticated(done));
 		});
 
@@ -213,7 +213,7 @@ function addCategories(count, id) {
 function postRequestAndQueryDb(agent, data, callback) {
 	return function() {
 		agent
-		.post('/bookmark/category')
+		.post(url)
 		.type('form')
 		.send(data)
 		.end((err, res) => {
