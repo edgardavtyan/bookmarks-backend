@@ -8,6 +8,7 @@ module.exports = function(app) {
 	require('./register')(app);
 	require('./login')(app);
 	require('./category')(app);
+	require('./category_id')(app);
 
 	app.use((req, res) => {
 		res.json({ errors: res.errors });

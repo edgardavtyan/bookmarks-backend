@@ -12,6 +12,13 @@ utils.expectNotAuthenticated = function(done) {
 	};
 };
 
+utils.makeGetRequest = function(agent, url, data, callback) {
+	agent
+	.get(url)
+	.send(data)
+	.end(callback);
+};
+
 utils.makePostRequest = function(agent, url, data, callback) {
 	agent
 	.post(url)
