@@ -187,20 +187,33 @@ describe(url, () => {
 				.end(utils.expectNotAuthenticated(done));
 		});
 
-		it('remove category by id', done => {
+		it('remove all categories', done => {
 			const agent = supertest.agent(app);
 			async.series([
+				saveCategories([
+					{ name: 'test_name', userId: 'test_id' },
+					{ name: 'test_name', userId: 'test_id' },
+					{ name: 'test_name', userId: 'test_id' },
+					{ name: 'test_name', userId: 'test_id' },
+					{ name: 'test_name', userId: 'test_id' },
+				]),
 				utils.login(agent, credentials),
-				utils.makeDeleteRequest(agent, url, { id: categoryId }, (err, res) => {
-					expect(res.statusCode).to.equal(200);
-					expect(res.body.id).to.equal(categoryId);
-					expect(res.body.name).to.equal('Test Name');
-					done();
+				utils.makeDeleteRequest(agent, url, {}, () => {
+					Category.Model.find({}, (err, categories) => {
+						expect(categories).to.be.empty();
+						done();
+					});
 				}),
 			]);
 		});
 	});
 });
+
+function saveCategories(data) {
+	return function(innerCallback) {
+		Category.Model.create(data, () => innerCallback());
+	};
+}
 
 function addCategories(count, id) {
 	return function(callback) {

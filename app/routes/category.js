@@ -45,11 +45,6 @@ module.exports = function(app) {
 	app.delete('/category', checkAuth, (req, res, next) => {
 		if (res.errors.length > 0) return next();
 
-		Category.Model.findOneAndRemove({ id: req.query.id }, (err, category) => {
-			res.json({
-				id: category._id,
-				name: category.name,
-			});
-		});
+		Category.Model.remove({}, () => res.send());
 	});
 };

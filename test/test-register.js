@@ -7,7 +7,7 @@ const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
 const utils = rootRequire('test/utils/utils');
 
-const url = '/register';;
+const url = '/register';
 
 describe(url, () => {
 	beforeEach(done => {
