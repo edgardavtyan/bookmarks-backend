@@ -33,15 +33,6 @@ module.exports = function(app) {
 		});
 	});
 
-	app.put('/category', checkAuth, Category.putValidator, (req, res, next) => {
-		if (res.errors.length > 0) return next();
-
-		Category.Model.findOneAndUpdate(
-			{ _id: req.body.id },
-			{ name: req.body.name },
-			() => res.send());
-	});
-
 	app.delete('/category', checkAuth, (req, res, next) => {
 		if (res.errors.length > 0) return next();
 
