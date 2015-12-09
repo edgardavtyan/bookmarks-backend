@@ -18,17 +18,13 @@ const credentials = {
 
 describe(url, () => {
 	let userId;
-	let categoryId;
 
 
 	beforeEach(done => {
 		async.series([
 			cb => utils.clearModel(Category, cb),
 			cb => utils.clearModel(User, cb),
-			cb => utils.saveModel(Category, {name: 'Test Name'}, (err, category) => {
-				categoryId = category.id;
-				cb();
-			}),
+			cb => utils.saveModel(Category, {name: 'Test Name'}, cb),
 			() => User.Model.create(credentials, (err, user) => {
 				userId = user.id;
 				done();
@@ -40,7 +36,7 @@ describe(url, () => {
 		it('handle not authenticated requests', done => {
 			supertest(app)
 				.get(url)
-				.end(utils.expectNotAuthenticated(done));
+				.end(utils.expectUnauthorized(done));
 		});
 
 		it('return all bookmark categories', done => {
@@ -62,7 +58,7 @@ describe(url, () => {
 			supertest(app)
 				.post(url)
 				.type('form')
-				.end(utils.expectNotAuthenticated(done));
+				.end(utils.expectUnauthorized(done));
 		});
 
 		it('fill empty category fields', done => {
@@ -115,7 +111,7 @@ describe(url, () => {
 		it('handle unauthorized requests', done => {
 			supertest(app)
 				.delete(url)
-				.end(utils.expectNotAuthenticated(done));
+				.end(utils.expectUnauthorized(done));
 		});
 
 		it('remove all categories', done => {

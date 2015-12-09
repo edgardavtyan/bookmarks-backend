@@ -4,7 +4,7 @@ const expect = rootRequire('test/utils/chai').expect;
 
 const utils = module.exports = {};
 
-utils.expectNotAuthenticated = function(done) {
+utils.expectUnauthorized = function(done) {
 	return function(err, res) {
 		expect(res.statusCode).to.equal(401);
 		expect(res.body.errors).to.contain(errors.auth.notAuthenticated);

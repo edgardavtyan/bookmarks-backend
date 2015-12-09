@@ -32,7 +32,7 @@ describe(`${url}/:id`, () => {
 
 	describe('GET', () => {
 		it('handle unauthorized requests', done => {
-			supertest(app).get('/category/123').end(utils.expectNotAuthenticated(done));
+			supertest(app).get('/category/123').end(utils.expectUnauthorized(done));
 		});
 
 		it('return error given non existing id', done => {
@@ -62,7 +62,7 @@ describe(`${url}/:id`, () => {
 
 	describe('PUT', () => {
 		it('handle unauthorized requests', done => {
-			supertest(app).put(`${url}/123`).end(utils.expectNotAuthenticated(done));
+			supertest(app).put(`${url}/123`).end(utils.expectUnauthorized(done));
 		});
 
 		it('return error given non existing id', done => {
@@ -98,7 +98,7 @@ describe(`${url}/:id`, () => {
 
 	describe('DELETE', () => {
 		it('handle unauthroized requests', done => {
-			supertest(app).delete(`${url}/123`).end(utils.expectNotAuthenticated(done));
+			supertest(app).delete(`${url}/123`).end(utils.expectUnauthorized(done));
 		});
 
 		it('return error given non existing id', done => {
