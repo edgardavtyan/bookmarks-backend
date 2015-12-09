@@ -25,4 +25,8 @@ module.exports = {
 		notFound: { key: 'category-not-found' },
 		idNotFound: { key: 'category-id-not-found' },
 	},
+
+	subcategory: {
+		nameTooLong: { key: 'name-too-long' },
+	},
 };

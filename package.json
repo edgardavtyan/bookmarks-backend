@@ -4,8 +4,8 @@
   "description": "Bookmarks manager app",
   "main": "app.js",
   "dependencies": {
-    "cookie-parser": "^1.4.0",
     "body-parser": "^1.14.1",
+    "cookie-parser": "^1.4.0",
     "express": "^4.13.3",
     "express-session": "^1.12.1",
     "mongoose": "^4.2.8",
@@ -30,9 +30,9 @@
     "start-db": "mongod --dbpath \"./.dbdata\""
   },
   "config": {
-  	"ghooks": {
-  		"pre-commit": "sh hooks/lint.sh && npm run test"
-  	}
+    "ghooks": {
+      "pre-commit": "sh hooks/lint.sh && npm run test"
+    }
   },
   "keywords": [
     "nodejs",
