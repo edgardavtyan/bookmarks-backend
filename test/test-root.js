@@ -3,15 +3,14 @@ const supertest = require('supertest');
 const async = require('async');
 const app = rootRequire('app');
 const errors = rootRequire('app/utils/errors');
-const User = rootRequire('app/db/User');
+const User = rootRequire('app/db/User').Model;
 const expect = rootRequire('test/utils/chai').expect;
-const utils = rootRequire('test/utils/utils');
 
 const url = '/';
 
 describe(url, () => {
 	beforeEach(done => {
-		User.Model.remove({}, done);
+		User.remove({}, done);
 	});
 
 	describe('GET', () => {
@@ -29,8 +28,8 @@ describe(url, () => {
 			const agent = supertest.agent(app);
 
 			async.series([
-				cb => utils.makePostRequest(agent, '/register', data, cb),
-				cb => utils.makePostRequest(agent, '/login', data, cb),
+				cb => agent.post('/register').type('form').send(data).end(cb),
+				cb => agent.post('/login').type('form').send(data).end(cb),
 				() => agent.get(url).end((err, res) => {
 					expect(res.body.errors).to.be.empty();
 					done();

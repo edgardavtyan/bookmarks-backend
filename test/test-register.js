@@ -2,16 +2,15 @@
 const app = require('../app');
 const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
-const User = rootRequire('app/db').User;
+const User = rootRequire('app/db/User').Model;
 const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
-const utils = rootRequire('test/utils/utils');
 
 const url = '/register';
 
 describe(url, () => {
 	beforeEach(done => {
-		utils.clearModel(User, done);
+		User.remove({}, done);
 	});
 
 	it('return error given too short username', done => {
@@ -109,7 +108,7 @@ describe(url, () => {
 		};
 
 		makePostRequest(data, () => {
-			User.Model.findOne({ username: data.username }, (err, user) => {
+			User.findOne({ username: data.username }, (err, user) => {
 				expect(user.username).to.equal(data.username);
 				expect(user.password).to.equal(data.password);
 				done();

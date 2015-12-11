@@ -3,8 +3,8 @@
 const app = require('../app');
 const async = require('async');
 const supertest = require('supertest');
-const Category = rootRequire('app/db/Category');
-const User = rootRequire('app/db/User');
+const Category = rootRequire('app/db/Category').Model;
+const User = rootRequire('app/db/User').Model;
 const errors = rootRequire('app/utils/errors');
 const utils = rootRequire('test/utils/utils');
 const expect = rootRequire('test/utils/chai').expect;
@@ -20,13 +20,13 @@ let testCategory;
 describe(`${url}/:id`, () => {
 	beforeEach(done => {
 		async.series([
-			cb => utils.clearModel(Category, cb),
-			cb => utils.clearModel(User, cb),
-			cb => utils.saveModel(Category, { name: 'TestName' }, (err, result) => {
+			cb => Category.remove({}, cb),
+			cb => User.remove({}, cb),
+			cb => Category.create({ name: 'TestName' }, (err, result) => {
 				testCategory = { id: result.id, name: result.name };
 				cb();
 			}),
-			() => utils.saveModel(User, credentials, done),
+			() => User.create(credentials, done),
 		]);
 	});
 
@@ -39,7 +39,7 @@ describe(`${url}/:id`, () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => utils.makeGetRequest(agent, `${url}/-123`, {}, (err, res) => {
+				() => agent.get(`${url}/-123`).end((err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.idNotFound);
 					done();
@@ -51,7 +51,7 @@ describe(`${url}/:id`, () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, () => cb(null)),
-				() => utils.makeGetRequest(agent, `${url}/${testCategory.id}`, {}, (err, res) => {
+				() => agent.get(`${url}/${testCategory.id}`).end((err, res) => {
 					expect(res.statusCode).to.equal(200);
 					expect(res.body).to.eql(testCategory);
 					done();
@@ -69,7 +69,7 @@ describe(`${url}/:id`, () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => utils.makePutRequest(agent, `${url}/0`, {}, (err, res) => {
+				() => agent.put(`${url}/0`).end((err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.idNotFound);
 					done();
@@ -83,12 +83,12 @@ describe(`${url}/:id`, () => {
 			const newData = { name: 'New Name' };
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				cb => utils.makePutRequest(agent, testUrl, newData, (err, res) => {
+				cb => agent.put(testUrl).type('form').send(newData).end((err, res) => {
 					expect(res.statusCode).to.equal(200);
 					expect(res.body).to.eql({ id: testCategory.id, name: newData.name });
 					cb();
 				}),
-				() => Category.Model.findById(testCategory.id, (err, category) => {
+				() => Category.findById(testCategory.id, (err, category) => {
 					expect(category.name).to.eql(newData.name);
 					done();
 				}),
@@ -105,7 +105,7 @@ describe(`${url}/:id`, () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => utils.makeDeleteRequest(agent, `${url}/0`, {}, (err, res) => {
+				() => agent.delete(`${url}/0`).end((err, res) => {
 					expect(res.statusCode).to.eql(400);
 					expect(res.body.errors).to.contain(errors.category.idNotFound);
 					done();
@@ -115,14 +115,14 @@ describe(`${url}/:id`, () => {
 
 		it('delete category with given existing id', done => {
 			const agent = supertest.agent(app);
-			const query = `${url}/${testCategory.id}`;
+			const testUrl = `${url}/${testCategory.id}`;
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				cb => utils.makeDeleteRequest(agent, query, {}, (err, res) => {
+				cb => agent.delete(testUrl).end((err, res) => {
 					expect(res.statusCode).to.eql(200);
 					cb();
 				}),
-				() => Category.Model.findById(testCategory.id, (err, category) => {
+				() => Category.findById(testCategory.id, (err, category) => {
 					expect(category).to.be.null();
 					done();
 				}),

@@ -3,27 +3,30 @@
 const app = require('../app');
 const async = require('async');
 const supertest = require('supertest');
-const User = rootRequire('app/db/User');
-const Category = rootRequire('app/db/Category');
-const SubCategory = rootRequire('app/db/SubCategory');
+const User = rootRequire('app/db/User').Model;
+const Category = rootRequire('app/db/Category').Model;
+const SubCategory = rootRequire('app/db/SubCategory').Model;
 const errors = rootRequire('app/utils/errors');
 const utils = rootRequire('test/utils/utils');
 const expect = rootRequire('test/utils/chai').expect;
 const faker = rootRequire('test/utils/faker-custom');
 
+const urlPattern = '/category/:id/subcategory';
 const credentials = { username: 'user', password: 'pass' };
-let categoryId, url;
 
-describe('/category/:id/subcategory', () => {
+describe(urlPattern, () => {
+	let categoryId, url;
+
+
 	beforeEach(done => {
 		async.series([
-			cb => User.Model.remove({}, cb),
-			cb => Category.Model.remove({}, cb),
-			cb => SubCategory.Model.remove({}, cb),
-			cb => User.Model.create(credentials, cb),
-			() => utils.saveModel(Category, { name: 'TestCategory' }, (err, category) => {
+			cb => User.remove({}, cb),
+			cb => Category.remove({}, cb),
+			cb => SubCategory.remove({}, cb),
+			cb => User.create(credentials, cb),
+			() => Category.create({ name: 'TestCategory' }, (err, category) => {
 				categoryId = category.id;
-				url = `/category/${categoryId}/subcategory`;
+				url = getUrl(categoryId);
 				done();
 			}),
 		]);
@@ -38,7 +41,7 @@ describe('/category/:id/subcategory', () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => agent.get('/category/123/subcategory').end((err, res) => {
+				() => agent.get(getUrl(123)).end((err, res) => {
 					expect(res.statusCode).to.eql(404);
 					done();
 				}),
@@ -49,13 +52,15 @@ describe('/category/:id/subcategory', () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				cb => SubCategory.Model.create({ name: 'TestName1', categoryId }, cb),
-				cb => SubCategory.Model.create({ name: 'TestName2', categoryId }, cb),
-				cb => SubCategory.Model.create({ name: 'TestName3', categoryId: faker.string(24) }, cb),
-				cb => SubCategory.Model.create({ name: 'TestName4', categoryId: faker.string(24) }, cb),
+				cb => SubCategory.create({ name: 'TestName1', categoryId }, cb),
+				cb => SubCategory.create({ name: 'TestName2', categoryId }, cb),
+				cb => SubCategory.create({ name: 'TestName3', categoryId: faker.string(24) }, cb),
+				cb => SubCategory.create({ name: 'TestName4', categoryId: faker.string(24) }, cb),
 				() => agent.get(url).end((err, res) => {
-					expect(res.body[0]).to.contain({ name: 'TestName1', categoryId: String(categoryId) });
-					expect(res.body[1]).to.contain({ name: 'TestName2', categoryId: String(categoryId) });
+					expect(res.body[0]).to.contain({
+						name: 'TestName1', categoryId: String(categoryId) });
+					expect(res.body[1]).to.contain({
+						name: 'TestName2', categoryId: String(categoryId) });
 					done();
 				}),
 			]);
@@ -64,15 +69,15 @@ describe('/category/:id/subcategory', () => {
 
 	describe('POST', () => {
 		it('handle unauthorized requests', done => {
-			supertest(app).post('/category/123/subcategory').end(utils.expectUnauthorized(done));
+			supertest(app).post(getUrl(123)).end(utils.expectUnauthorized(done));
 		});
 
 		it('return error given non existing id', done => {
 			const agent = supertest.agent(app);
-			const id = faker.string(24);
+			const testUrl = getUrl(faker.string(24));
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => utils.makePostRequest(agent, `/category/${id}/subcategory`, {}, (err, res) => {
+				() => agent.post(testUrl).end((err, res) => {
 					expect(res.statusCode).to.eql(404);
 					expect(res.body.errors).to.contain(errors.category.idNotFound);
 					done();
@@ -85,7 +90,7 @@ describe('/category/:id/subcategory', () => {
 			const data = { name: faker.string(2000) };
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => utils.makePostRequest(agent, url, data, (err, res) => {
+				() => agent.post(url).type('form').send(data).end((err, res) => {
 					expect(res.statusCode).to.eql(400);
 					expect(res.body.errors).to.contain(errors.subcategory.nameTooLong);
 					done();
@@ -97,12 +102,12 @@ describe('/category/:id/subcategory', () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				cb => utils.makePostRequest(agent, url, {}, (err, res) => {
+				cb => agent.post(url).end((err, res) => {
 					expect(res.statusCode).to.eql(200);
 					expect(res.body).to.contain({ name: 'New SubCategory' });
 					cb();
 				}),
-				() => SubCategory.Model.findOne({}, (err, subcategory) => {
+				() => SubCategory.findOne({}, (err, subcategory) => {
 					expect(subcategory.name).to.eql('New SubCategory');
 					done();
 				}),
@@ -114,12 +119,13 @@ describe('/category/:id/subcategory', () => {
 			const data = { name: faker.string(25) };
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				cb => utils.makePostRequest(agent, url, data, (err, res) => {
+				cb => agent.post(url).type('form').send(data).end((err, res) => {
 					expect(res.statusCode).to.eql(200);
-					expect(res.body).to.contain({ name: data.name, categoryId: String(categoryId) });
+					expect(res.body).to.contain({
+						name: data.name, categoryId: String(categoryId) });
 					cb();
 				}),
-				() => SubCategory.Model.findOne({}, (err, subcategory) => {
+				() => SubCategory.findOne({}, (err, subcategory) => {
 					expect(subcategory.name).to.eql(data.name);
 					done();
 				}),
@@ -134,9 +140,10 @@ describe('/category/:id/subcategory', () => {
 
 		it('return 404 given non existing category id', done => {
 			const agent = supertest.agent(app);
+			const testUrl = getUrl(faker.string(24));
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => utils.makeDeleteRequest(agent, `/category/${faker.string(24)}/subcategory`, {}, (err, res) => {
+				() => agent.delete(testUrl).end((err, res) => {
 					expect(res.statusCode).to.eql(404);
 					expect(res.body.errors).to.contain(errors.category.idNotFound);
 					done();
@@ -148,12 +155,12 @@ describe('/category/:id/subcategory', () => {
 			const agent = supertest.agent(app);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				cb => SubCategory.Model.create([{categoryId}, {categoryId}, {}, {}, {}], cb),
-				cb => utils.makeDeleteRequest(agent, url, {}, (err, res) => {
+				cb => SubCategory.create([{categoryId}, {categoryId}, {}, {}, {}], cb),
+				cb => agent.delete(url).end((err, res) => {
 					expect(res.statusCode).to.eql(200);
 					cb();
 				}),
-				() => SubCategory.Model.find({}, (err, subcategories) => {
+				() => SubCategory.find({}, (err, subcategories) => {
 					expect(subcategories.length).to.eql(3);
 					done();
 				}),
@@ -161,3 +168,7 @@ describe('/category/:id/subcategory', () => {
 		});
 	});
 });
+
+function getUrl(id) {
+	return urlPattern.replace(':id', id);
+}

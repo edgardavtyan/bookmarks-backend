@@ -4,8 +4,8 @@ const app = require('../app');
 const async = require('async');
 const supertest = require('supertest');
 const errors = rootRequire('app/utils/errors');
-const Category = rootRequire('app/db/Category');
-const User = rootRequire('app/db/User');
+const Category = rootRequire('app/db/Category').Model;
+const User = rootRequire('app/db/User').Model;
 const faker = rootRequire('test/utils/faker-custom');
 const expect = rootRequire('test/utils/chai').expect;
 const utils = rootRequire('test/utils/utils');
@@ -22,10 +22,10 @@ describe(url, () => {
 
 	beforeEach(done => {
 		async.series([
-			cb => utils.clearModel(Category, cb),
-			cb => utils.clearModel(User, cb),
-			cb => utils.saveModel(Category, {name: 'Test Name'}, cb),
-			() => User.Model.create(credentials, (err, user) => {
+			cb => Category.remove({}, cb),
+			cb => User.remove({}, cb),
+			cb => Category.create({name: 'Test Name'}, cb),
+			() => User.create(credentials, (err, user) => {
 				userId = user.id;
 				done();
 			}),
@@ -98,7 +98,7 @@ describe(url, () => {
 			const name = faker.string(1000);
 			async.series([
 				cb => utils.login(agent, credentials, cb),
-				() => utils.makePostRequest(agent, url, { name }, (err, res) => {
+				() => agent.post(url).type('form').send({ name }).end((err, res) => {
 					expect(res.statusCode).to.equal(400);
 					expect(res.body.errors).to.contain(errors.category.nameTooLong);
 					done();
@@ -119,8 +119,8 @@ describe(url, () => {
 			async.series([
 				cb => addCategories(5, null, cb),
 				cb => utils.login(agent, credentials, cb),
-				cb => utils.makeDeleteRequest(agent, url, {}, cb),
-				() => Category.Model.find({}, (err, categories) => {
+				cb => agent.delete(url).end(cb),
+				() => Category.find({}, (err, categories) => {
 					expect(categories).to.be.empty();
 					done();
 				}),
@@ -137,7 +137,7 @@ function addCategories(count, userId, callback) {
 		categories.push({ userId });
 	}
 
-	Category.Model.create(categories, callback);
+	Category.create(categories, callback);
 }
 
 function postRequestAndQueryDb(agent, data, callback) {
@@ -145,7 +145,5 @@ function postRequestAndQueryDb(agent, data, callback) {
 	.post(url)
 	.type('form')
 	.send(data)
-	.end((err, res) => {
-		Category.Model.findById(res.body.category._id, callback);
-	});
+	.end((err, res) => Category.findById(res.body.category._id, callback));
 }
